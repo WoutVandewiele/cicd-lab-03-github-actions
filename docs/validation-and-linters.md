@@ -1,6 +1,6 @@
 # Validation and linters — cheat sheet
 
-Reference reading for Block A. The point isn't to use every linter; the point is to know which one catches which class of bug, and to install only the ones that earn their place. This lab ships an Ignition gateway running a Perspective HMI project, so the toolset is built around the files we actually track: YAML, workflows, shell scripts, and Perspective `view.json` resources.
+Reference reading for Part 1 (linters). The point isn't to use every linter; the point is to know which one catches which class of bug, and to install only the ones that earn their place. This lab ships an Ignition gateway running a Perspective HMI project, so the toolset is built around the files we actually track: YAML, workflows, shell scripts, and Perspective `view.json` resources.
 
 ## The tools we install
 

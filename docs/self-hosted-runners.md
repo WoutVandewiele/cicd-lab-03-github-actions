@@ -1,6 +1,6 @@
 # Self-hosted runners — cheat sheet
 
-Reference reading for Block C. Self-hosted runners solve specific problems; they introduce specific risks. Use them deliberately.
+Reference reading for Part 3 (self-hosted runners). Self-hosted runners solve specific problems; they introduce specific risks. Use them deliberately.
 
 ## The architecture in one paragraph
 
@@ -95,5 +95,5 @@ We'll build a real Ignition deploy job (against a sandbox gateway) in Lab 05.
 
 - [GitHub's official docs on self-hosted runners](https://docs.github.com/en/actions/hosting-your-own-runners)
 - [Security guide for self-hosted runners](https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#hardening-for-self-hosted-runners)
-- [`myoung34/docker-github-actions-runner`](https://github.com/myoung34/docker-github-actions-runner) — the image we use in Block C
+- [`myoung34/docker-github-actions-runner`](https://github.com/myoung34/docker-github-actions-runner) — the image we use in Part 3
 - [Actions Runner Controller](https://github.com/actions/actions-runner-controller) — Kubernetes-native runner management

@@ -1,6 +1,6 @@
 # Lab 03 — GitHub Actions
 
-Day 2, Blocks A through D of the [CI/CD for Ignition Masterclass](https://github.com/mustry-academy/cicd-masterclass).
+Day 2 of the [CI/CD for Ignition Masterclass](https://github.com/mustry-academy/cicd-masterclass) — a single ~3-hour workshop.
 
 > Build a CI safety net around a real Ignition project: run linters that catch problems before they ship, write GitHub Actions workflows from scratch, and understand when to reach for self-hosted runners.
 
@@ -23,7 +23,7 @@ is the subject of [Lab 04](https://github.com/mustry-academy/cicd-lab-04-ignitio
 - Pass [`cicd-preflight`](https://github.com/mustry-academy/cicd-preflight)
 - Docker (with the Compose V2 plugin) — ~1.5 GB RAM is plenty for the single gateway
 - Python 3.10+ (for the linters: `ign-lint`, `yamllint`)
-- A GitHub Personal Access Token with `repo` scope (for Block C — register a self-hosted runner). Generate ahead of class.
+- A GitHub Personal Access Token with `repo` scope (for the self-hosted-runner demo). Generate ahead of class.
 
 ## Quick start
 
@@ -44,12 +44,12 @@ pip install ign-lint==0.6.1
 ign-lint --config rule_config.json --files "projects/**/view.json"   # Ignition-native linting of the Perspective views
 ```
 
-The other linters Block A introduces (install separately — see `exercises/block-a.md`):
+The other linters Part 1 introduces (install separately — see [`exercises/lab.md`](./exercises/lab.md)):
 
 ```bash
 pip install yamllint==1.35.1
 yamllint -c .yamllint.yml .
-# actionlint, shellcheck install separately — see exercises/block-a.md
+# actionlint, shellcheck install separately — see exercises/lab.md
 ```
 
 Stop the gateway when you're done:
@@ -61,26 +61,16 @@ ops/teardown.sh --volumes   # stop and wipe gateway state for a fresh start
 
 ## Lab structure
 
-| Block | Topic | Exercise |
+The whole lab is one continuous workshop in [`exercises/lab.md`](./exercises/lab.md):
+
+| Part | Topic | ~Time |
 |---|---|---|
-| A | Validation and linters as your safety net | [`exercises/block-a.md`](./exercises/block-a.md) |
-| B | GitHub Actions: workflows, jobs, steps | [`exercises/block-b.md`](./exercises/block-b.md) |
-| C | Self-hosted runners: when, why, and how | [`exercises/block-c.md`](./exercises/block-c.md) |
-| D | CI/CD pipelines that work; deployment strategy primer | [`exercises/block-d.md`](./exercises/block-d.md) |
+| 1 | Linters as your safety net (yamllint, shellcheck, actionlint, **ign-lint**, `validate.sh`) | 60 min |
+| 2 | GitHub Actions: workflows, jobs, required checks | 75 min |
+| 3 | Self-hosted runners: when, why, how (demo + discussion) | 30 min |
 
-## Checkpoints
-
-```bash
-git fetch --tags
-git checkout block-a-start      # the "seeded broken" starting state
-git checkout block-a-end
-git checkout block-b-start
-git checkout block-b-end
-git checkout block-c-start
-git checkout block-c-end
-```
-
-Block D is discussion + worksheet; no checkpoint tags.
+Part 1 starts from a deliberately-broken state seeded by [`ops/seed.sh`](./ops/seed.sh); the
+answer key is in [`instructor-notes/lab-key.md`](./instructor-notes/lab-key.md).
 
 ## Repo layout
 
@@ -90,28 +80,29 @@ cicd-lab-03-github-actions/
 ├── docker-compose.yml                 ← one Ignition gateway (named volume + bind-mounted projects/)
 ├── .env.example                       ← copy to .env before running
 ├── .gitattributes                     ← LF normalization so Ignition's JSON resources stay clean
-├── .yamllint.yml                      ← built up during Block A
-├── .pre-commit-config.yaml            ← Block A stretch target
+├── .yamllint.yml                      ← yamllint config (tuned in Part 1)
+├── .pre-commit-config.yaml            ← Part 1 stretch target
 ├── rule_config.json                   ← ign-lint rule configuration
 ├── .github/
 │   ├── workflows/
-│   │   └── ci.yml                     ← the workflow we build in Block B
+│   │   └── ci.yml                     ← the workflow we build in Part 2
 │   └── pull_request_template.md
 ├── ops/
 │   ├── setup.sh                       ← boot the gateway and wait for RUNNING
 │   ├── scan.sh                        ← push project-file edits to the running gateway
 │   ├── teardown.sh                    ← stop the gateway (--volumes to wipe state)
+│   ├── seed.sh                        ← plant Part 1's deliberately-broken state
 │   └── validate.sh                    ← the PR green/red check (valid JSON + parseable Python)
 ├── projects/                          ← the Ignition project (bind-mounted into the gateway)
 │   └── lab-project/
 │       ├── project.json
 │       ├── com.inductiveautomation.perspective/   ← the Perspective HMI dashboard + page config
 │       └── ignition/script-python/lab/            ← Python scripts (display + util helpers)
-├── exercises/                         ← block-a..d
+├── exercises/
+│   └── lab.md                         ← the workshop (Parts 1–3)
 ├── docs/                              ← reference reading
-├── instructor-notes/                  ← answer keys (read after solo work)
-└── worksheets/
-    └── deployment-strategy-worksheet.md
+└── instructor-notes/
+    └── lab-key.md                     ← answer key (read after solo work)
 ```
 
 ## The Compose stack
@@ -136,7 +127,7 @@ volumes:
 
 > The gateway regenerates a `.resources/` blob store and other operational files inside `projects/` as it runs. Those are gateway-owned churn and are gitignored — if you ever see them in `git status`, your ignore rules are off.
 
-> **CI is built from scratch here.** Lab 02 deliberately shipped no CI — `ops/validate.sh` was something *you* remembered to run. This lab adds a `.github/workflows/ci.yml` that you write block-by-block, turning that validation (plus `ign-lint`) into a check every PR must pass. We do **not** call any reusable workflows — you see what's inside before you call it.
+> **CI is built from scratch here.** Lab 02 deliberately shipped no CI — `ops/validate.sh` was something *you* remembered to run. This lab adds a `.github/workflows/ci.yml` that you build through the workshop, turning that validation (plus `ign-lint`) into a check every PR must pass. We do **not** call any reusable workflows — you see what's inside before you call it.
 
 ## Licence
 
