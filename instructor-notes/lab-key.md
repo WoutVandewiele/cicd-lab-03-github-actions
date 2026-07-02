@@ -172,6 +172,8 @@ from `bw-design-group/ignition-lint`) is the Ignition-native linter for Perspect
 - **`permissions: contents: read`** at the workflow level. Missing → `issue:` comment.
 - **`paths:` filter** on `pull_request` covering `projects/**`, `ops/**`, and `rule_config.json`.
   A docs-only PR must be **skipped**. If their docs PR runs the full workflow, the filter's wrong.
+  (After step 4 that same skipped PR will hang on "Expected — waiting for status" — that's the
+  trap callout working as intended, not a bug in their workflow. The no-op-twin stretch resolves it.)
 - **`ign-lint` step** in `lint` and a **`validate` job** running `ops/validate.sh`.
 - **CI badge** in `README.md` (often missed; `nitpick:` if absent).
 - **Required check** on `main` — both `lint` and `validate`.
@@ -215,6 +217,11 @@ workflow, dig in — they probably copy-pasted without understanding the privile
 ### Debugging tips
 
 - **"Workflow not running on my PR."** Check the `paths:` filter and the PR source branch.
+- **"My docs-only PR is stuck on *Expected — waiting for status*."** The paths-filter ×
+  required-check interaction from the step 4 callout: a skipped required check never reports,
+  so the PR waits forever. Options: the no-op twin workflow (stretch), an admin merge, or
+  accepting it for a lab repo. This is the single most common real-world surprise with
+  required checks — lean into it.
 - **"ign-lint install/run fails."** Almost always Python version — needs 3.10+. Confirm the
   `--files` glob is quoted (`"projects/**/view.json"`) so the shell doesn't expand it first.
 - **"validate fails but the views look fine."** It also parses every `code.py` as Python 3 —

@@ -237,7 +237,7 @@ on:
 ```
 
 Open a PR that touches **only** `README.md` and confirm the workflow is **skipped** (not
-just passed).
+just passed). Hold that thought — it collides with required checks in step 4.
 
 **2 — Compose validation.** Add a final step to the lint job:
 
@@ -260,12 +260,29 @@ introduce a failure — run `ops/seed.sh` to plant the broken state (or just set
 poll to `now(250)` by hand) — commit it, and open a PR. Confirm GitHub blocks the merge.
 Fix and re-push.
 
+> **The trap you just set.** Required checks and `paths:` filters interact badly. Your
+> docs-only PR from step 1 was *skipped* — but a required check that never reports
+> doesn't pass, it stays **"Expected — waiting for status" forever**. Try it: open
+> another README-only PR now and watch it hang. With branch protection on, nobody can
+> merge a docs-only change without an admin override. GitHub's documented fix is a
+> **twin no-op workflow** — same workflow name, same job names, an inverse
+> `paths-ignore:` filter — that reports an instant green `lint` and `validate` on
+> exactly the PRs the real CI skips
+> ([Handling skipped but required checks](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/troubleshooting-required-status-checks#handling-skipped-but-required-checks)).
+> Building it is a stretch goal below; for this lab repo it's also fine to just
+> understand *why* the PR hangs — this exact interaction bites real teams.
+
 **5 — Sanity check.** Commit any remaining changes. Your workflow should match the shipped
 [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) — see
 [`instructor-notes/lab-key.md`](../instructor-notes/lab-key.md) for the reference end state.
 
 ### Stretch `[OPTIONAL]`
 
+- **Fix the docs-only-PR hang** with the no-op twin from the step 4 callout: a second
+  workflow, also `name: CI`, whose `paths-ignore:` mirrors the real filter list, with
+  jobs `lint` and `validate` that just `echo` and exit 0. Same job names → the required
+  checks report green on docs-only PRs. Mind the caveat in GitHub's docs: a PR touching
+  both docs *and* code triggers both workflows.
 - **Matrix `ign-lint` over individual views** so each view surfaces as its own check — a
   one-entry matrix today, but the pattern that scales as the HMI grows. (For now the single
   globbed step is plenty; the matrix is about isolating *which* view broke, not speed.)
