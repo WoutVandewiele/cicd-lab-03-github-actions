@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lab 03 — Teaching: GitHub Actions &amp; validation as a safety net</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0e1b2e;
+  --navy2:#15233a;
+  --blue:#2563eb;
+  --blue-d:#1d4ed8;
+  --peri:#93a9f0;
+  --peri2:#a8bef7;
+  --peri-soft:#e8eefc;
+  --bg:#eef1f6;
+  --panel:#ffffff;
+  --panel2:#f5f8fc;
+  --line:#e3e9f1;
+  --line2:#d3dcea;
+  --txt:#15233a;
+  --txt-dim:#5a6a7e;
+  --txt-faint:#94a2b4;
+  --good:#16a34a; --good-soft:#e3f6ea;
+  --warn:#d97706; --warn-soft:#fbf0db;
+  --red:#dc2626; --red-soft:#fdeaea;
+  --teal:#3bbdb4;
+  --teal-l:#5fd6cd;
+  --shadow:0 1px 2px rgba(14,27,46,.05),0 10px 30px -16px rgba(14,27,46,.28);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--navy);
+  color:var(--txt);
+  font-family:'Libre Franklin',sans-serif;
+  -webkit-font-smoothing:antialiased;
+  overflow:hidden;
+}
+.mono{font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums}
+
+/* ---- deck mechanics ---- */
+.deck{height:100vh;width:100vw;overflow-y:scroll;scroll-snap-type:y mandatory;scroll-behavior:smooth}
+.deck::-webkit-scrollbar{display:none}
+.slide{
+  height:100vh;width:100vw;scroll-snap-align:start;scroll-snap-stop:always;
+  display:flex;flex-direction:column;position:relative;
+  padding:64px 64px 40px;background:var(--bg);
+}
+.slide.dark{background:radial-gradient(120% 120% at 80% -10%,#1c3358 0%,#0e1b2e 55%)}
+
+/* progress + nav */
+.hud{position:fixed;left:0;right:0;bottom:0;height:4px;background:rgba(255,255,255,.08);z-index:50}
+.hud .bar{height:100%;background:linear-gradient(90deg,var(--blue),var(--peri));width:0;transition:width .3s}
+.pager{position:fixed;right:22px;bottom:18px;z-index:50;font-size:11px;color:var(--txt-faint);font-family:'IBM Plex Mono'}
+.pager.on-dark{color:rgba(255,255,255,.55)}
+.hint{position:fixed;left:22px;bottom:16px;z-index:50;font-size:10.5px;color:var(--txt-faint);letter-spacing:.3px}
+.hint.on-dark{color:rgba(255,255,255,.4)}
+
+/* ---- logo ---- */
+.brandrow{display:flex;align-items:center;gap:13px}
+.logo-img{height:30px;width:auto;display:block}
+.logo-img.logo-lg{height:44px}
+
+/* slide chrome */
+.eyebrow{font-size:11px;letter-spacing:2.4px;text-transform:uppercase;color:var(--blue);font-weight:700;margin-bottom:14px}
+.dark .eyebrow{color:var(--peri2)}
+.title{font-weight:800;font-size:40px;line-height:1.04;letter-spacing:-1px;color:var(--navy)}
+.dark .title{color:#fff}
+.lead{font-size:16px;color:var(--txt-dim);line-height:1.5;max-width:760px;margin-top:14px}
+.dark .lead{color:#c4cfde}
+.sechead{display:flex;align-items:baseline;gap:14px;margin-bottom:26px}
+.sechead .num{font-family:'IBM Plex Mono';font-size:13px;font-weight:600;color:#fff;background:var(--blue);padding:5px 11px;border-radius:8px;letter-spacing:.5px}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:48px}
+.topbar .stage{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--txt-faint);font-weight:600}
+.topbar .stage.on-dark{color:rgba(255,255,255,.5)}
+
+/* ---- cover ---- */
+.cover{flex:1;display:flex;flex-direction:column;justify-content:center;gap:8px}
+.cover .big{font-weight:800;font-size:58px;line-height:1.02;letter-spacing:-1.6px;color:#fff;max-width:17ch}
+.cover .big em{font-style:normal;color:var(--peri2)}
+.cover .sub{font-size:17px;color:#aebbcd;max-width:64ch;line-height:1.55;margin-top:18px}
+
+/* ---- generic layout ---- */
+.body{flex:1;display:flex;flex-direction:column;justify-content:center}
+.split{display:grid;grid-template-columns:1.15fr 1fr;gap:28px;align-items:start}
+.cols2{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+
+/* bullets */
+.checks{display:flex;flex-direction:column;gap:13px;margin-top:6px}
+.checks li{list-style:none;display:flex;gap:13px;align-items:flex-start;font-size:14.5px;color:var(--txt-dim);line-height:1.5}
+.checks li b{color:var(--txt);font-weight:700}
+.ck{flex:none;width:22px;height:22px;border-radius:7px;background:var(--peri-soft);display:grid;place-items:center;margin-top:1px}
+.ck svg{width:12px;height:12px;color:var(--blue)}
+.dark .checks li{color:#c4cfde}
+.dark .checks li b{color:#fff}
+.dark .ck{background:rgba(147,169,240,.18)}
+.dark .ck svg{color:var(--peri2)}
+
+.callout{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px 24px;box-shadow:var(--shadow);margin-top:22px}
+.callout .lab{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--warn);font-weight:700;margin-bottom:9px}
+.callout p{font-size:14.5px;color:var(--txt-dim);line-height:1.55}
+.callout p b{color:var(--txt);font-weight:700}
+.callout code{font-family:'IBM Plex Mono';font-size:13px;color:var(--blue-d)}
+.dark .callout{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.14)}
+.dark .callout p{color:#c4cfde}
+.dark .callout p b{color:#fff}
+
+/* code block (navy) */
+.code{background:var(--navy);border-radius:14px;padding:18px 20px;box-shadow:var(--shadow);margin-top:6px;overflow:auto}
+.code pre{font-family:'IBM Plex Mono';font-size:13.5px;color:#dbe6f5;line-height:1.7}
+.code .cm{color:#7d93ad}
+.code .cmd2{color:var(--peri2)}
+.code .bad{color:#ef6f6f}
+.code .ok{color:#6fdc9a}
+.dark .code{background:#0a1524;border:1px solid rgba(255,255,255,.1)}
+.inlinecode{font-family:'IBM Plex Mono';font-size:13px;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:2px 7px;color:var(--blue-d)}
+.dark .inlinecode{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.16);color:var(--peri2)}
+
+/* tool table */
+.tools{display:flex;flex-direction:column;margin-top:8px}
+.trow{display:grid;grid-template-columns:190px 1fr 1.35fr;gap:20px;align-items:baseline;padding:11px 0;border-bottom:1px solid var(--line2)}
+.trow code{font-family:'IBM Plex Mono';font-size:13.5px;font-weight:600;color:var(--blue);white-space:nowrap}
+.trow .tgt{font-family:'IBM Plex Mono';font-size:12px;color:var(--txt-faint)}
+.trow span{font-size:13px;color:var(--txt-dim);line-height:1.45}
+.trow span b{color:var(--txt);font-weight:600}
+.thead{display:grid;grid-template-columns:190px 1fr 1.35fr;gap:20px;padding:0 0 8px;font-size:10.5px;letter-spacing:1.2px;text-transform:uppercase;color:var(--txt-faint);font-weight:700}
+
+/* three category cards */
+.cat3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:10px}
+.catcard{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.catcard:before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--blue)}
+.catcard.c2:before{background:var(--teal)}
+.catcard.c3:before{background:var(--peri)}
+.catcard .pn{font-family:'IBM Plex Mono';font-size:11px;color:var(--txt-faint);font-weight:600;letter-spacing:1px}
+.catcard h4{font-size:18px;font-weight:800;letter-spacing:-.3px;margin:8px 0 4px}
+.catcard p{font-size:13px;color:var(--txt-dim);line-height:1.5;margin-top:8px}
+.catcard p b{color:var(--txt)}
+.catcard .ex{font-family:'IBM Plex Mono';font-size:11.5px;color:var(--blue);font-weight:600;margin-top:12px;line-height:1.6}
+
+/* rules list (ign-lint) */
+.rules{display:flex;flex-direction:column;margin-top:6px}
+.rrow{display:grid;grid-template-columns:270px 1fr;gap:16px;align-items:baseline;padding:9px 0;border-bottom:1px solid var(--line2)}
+.rrow code{font-family:'IBM Plex Mono';font-size:12.5px;font-weight:600;color:var(--blue);white-space:nowrap}
+.rrow span{font-size:12.5px;color:var(--txt-dim);line-height:1.45}
+.rrow span b{color:var(--txt);font-weight:600}
+.sev{font-family:'IBM Plex Mono';font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;padding:2px 7px;border-radius:5px;margin-left:6px}
+.sev.err{color:var(--red);background:var(--red-soft)}
+.sev.warnp{color:var(--warn);background:var(--warn-soft)}
+
+/* generic reveal — elements fade/rise in when .show is added */
+.reveal{opacity:0;transform:translateY(10px);transition:opacity .5s ease,transform .5s ease}
+.reveal.show{opacity:1;transform:none}
+
+/* section divider */
+.divider{flex:1;display:flex;flex-direction:column;justify-content:center}
+.divider .q{font-weight:800;font-size:52px;line-height:1.05;letter-spacing:-1.4px;color:#fff;max-width:20ch}
+.divider .q em{font-style:normal;color:var(--peri2)}
+.divider .sub2{font-size:18px;color:#aebbcd;margin-top:18px;max-width:60ch;line-height:1.5}
+
+/* control bar for interactive slides */
+.controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-top:14px;margin-top:auto;border-top:1px solid rgba(255,255,255,.08)}
+.controls .lead-step{font-size:13.5px;color:#c4cfde;margin-right:auto;max-width:66ch;line-height:1.45}
+.controls .lead-step b{color:#fff}
+.btn{font-family:'IBM Plex Mono';font-size:13px;font-weight:600;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.04);color:#dbe4f0;padding:9px 16px;border-radius:10px;cursor:pointer;transition:.15s}
+.btn:hover:not(:disabled){background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.4)}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn.primary:hover:not(:disabled){background:var(--blue-d)}
+.btn:disabled{opacity:.32;cursor:default}
+
+.vtitle{text-align:center;font-weight:800;font-size:34px;letter-spacing:-.5px;color:#fff}
+.stage-wrap{flex:1;display:flex;flex-direction:column;min-height:0}
+
+/* ---- HMI tile mock (broken-binding slide, dark) ---- */
+.hmiwrap{flex:1;display:grid;grid-template-columns:1.05fr 1fr;gap:30px;align-items:center;min-height:0;padding:18px 0}
+.hmi{border:1px solid rgba(255,255,255,.14);border-radius:18px;background:rgba(255,255,255,.03);padding:18px}
+.hmi .hmihead{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px}
+.hmi .hmihead .t{font-weight:800;font-size:15px;color:#fff;letter-spacing:-.2px}
+.hmi .hmihead .clock{font-family:'IBM Plex Mono';font-size:12px;color:#9fb6cf;border:1px solid rgba(255,255,255,.16);border-radius:8px;padding:4px 9px}
+.hmi .hmihead .clock.bad2{border-color:#ef6f6f;color:#ef8f8f}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.tile{border:1px solid rgba(255,255,255,.16);border-radius:13px;padding:12px 13px;background:rgba(255,255,255,.04)}
+.tile .tl{font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:#8fa0b6;font-weight:700}
+.tile .tv{font-family:'IBM Plex Mono';font-size:22px;font-weight:600;color:#fff;margin-top:6px}
+.tile .tn{font-family:'IBM Plex Mono';font-size:10.5px;color:var(--teal-l);margin-top:8px}
+.tile.broken{border-color:#ef6f6f;background:rgba(239,111,111,.08)}
+.tile.broken .tv{color:#ef8f8f}
+.bindline{font-family:'IBM Plex Mono';font-size:12px;line-height:1.65;margin-top:12px;border-radius:10px;padding:10px 13px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);color:#dbe6f5}
+.bindline.badb{border-color:#ef6f6f}
+.findbox{border:1px solid rgba(239,111,111,.5);background:rgba(239,111,111,.08);border-radius:12px;padding:12px 15px;margin-top:10px}
+.findbox .fr{font-family:'IBM Plex Mono';font-size:12px;color:#ef8f8f;font-weight:600}
+.findbox p{font-size:12.5px;color:#c4cfde;line-height:1.5;margin-top:5px}
+
+/* ---- workflow anatomy (nested boxes, dark) ---- */
+.anat{flex:1;display:flex;align-items:center;justify-content:center;min-height:0;padding:12px 0}
+.wfbox{border:2px solid var(--teal);border-radius:18px;padding:18px 20px;background:rgba(59,189,180,.05);width:100%;max-width:1180px}
+.wfbox .wfl{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+.wfbox .wfl .n{font-weight:800;font-size:17px;color:#fff}
+.wfbox .wfl .m{font-family:'IBM Plex Mono';font-size:12px;color:var(--teal-l)}
+.jobrow{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.jobbox{border:2px solid var(--peri2);border-radius:14px;padding:14px 16px;background:rgba(147,169,240,.07)}
+.jobbox .jl{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
+.jobbox .jl .n{font-weight:700;font-size:14.5px;color:#fff}
+.jobbox .jl .m{font-family:'IBM Plex Mono';font-size:11px;color:var(--peri2)}
+.stp{font-family:'IBM Plex Mono';font-size:11.5px;color:#dbe6f5;border:1px solid rgba(255,255,255,.18);border-radius:9px;padding:7px 10px;margin-top:7px;background:rgba(255,255,255,.04);display:flex;justify-content:space-between;gap:10px}
+.stp .k{color:#8fa0b6;flex:none}
+.stp.uses .k{color:var(--teal-l)}
+.stp.runs .k{color:var(--peri2)}
+
+/* ---- runner model lanes (dark) ---- */
+.lanes{flex:1;display:grid;grid-template-columns:200px 1fr 1fr;gap:18px;align-items:stretch;min-height:0;padding:14px 0}
+.evcard{border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:16px;background:rgba(255,255,255,.04);display:flex;flex-direction:column;justify-content:center;gap:6px}
+.evcard .e1{font-family:'IBM Plex Mono';font-size:12px;color:var(--teal-l)}
+.evcard .e2{font-size:13px;color:#c4cfde;line-height:1.45}
+.vm{border:2px dashed rgba(255,255,255,.3);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column}
+.vm .vmh{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.vm .vmh .n{font-weight:700;font-size:14px;color:#fff}
+.vm .vmh .tag{font-family:'IBM Plex Mono';font-size:10.5px;color:var(--warn);border:1px solid rgba(217,119,6,.55);border-radius:6px;padding:2px 7px}
+.vm .die{margin-top:auto;font-family:'IBM Plex Mono';font-size:11px;color:#ef8f8f;padding-top:10px}
+
+/* ---- self-hosted network diagram ---- */
+.net{flex:1;display:grid;grid-template-columns:1fr 90px 1.2fr;gap:0;align-items:center;min-height:0;padding:14px 0}
+.netbox{border:2px solid var(--peri2);border-radius:18px;padding:18px;background:rgba(147,169,240,.06)}
+.netbox.plant{border-color:var(--teal)}
+.netbox .nh{font-weight:800;font-size:15px;color:#fff;margin-bottom:10px}
+.netbox .ni{font-family:'IBM Plex Mono';font-size:12px;color:#dbe6f5;border:1px solid rgba(255,255,255,.18);border-radius:9px;padding:8px 11px;margin-top:8px;background:rgba(255,255,255,.04)}
+.netbox .ni.hl{border-color:var(--teal);color:var(--teal-l)}
+.fw{display:flex;flex-direction:column;align-items:center;gap:6px}
+.fw .wall{width:14px;height:190px;border-radius:8px;background:repeating-linear-gradient(45deg,#ef6f6f,#ef6f6f 8px,rgba(239,111,111,.25) 8px,rgba(239,111,111,.25) 16px)}
+.fw .cap{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#ef8f8f;font-weight:700;writing-mode:vertical-rl}
+
+.refs{margin-top:auto;display:flex;gap:10px;flex-wrap:wrap;padding-top:18px}
+.refs .ref{font-family:'IBM Plex Mono';font-size:11.5px;color:var(--txt-dim);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:6px 11px}
+.refs .ref b{color:var(--blue);font-weight:600}
+
+.foot{margin-top:auto;display:flex;align-items:center;justify-content:space-between;font-size:11.5px;color:var(--txt-faint);padding-top:24px}
+.dark .foot{color:rgba(255,255,255,.45)}
+
+@media print{
+  body{overflow:visible}
+  .deck{height:auto;overflow:visible}
+  .slide{height:100vh;page-break-after:always;break-after:page}
+  .hud,.pager,.hint,.controls{display:none}
+  .reveal{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+
+<div class="deck" id="deck">
+
+<!-- 1 · COVER -->
+<!-- [VERIFY] Session times below follow the welcome package's "typical live day" (Teaching 09:00–10:00). Adjust if Day 2 differs. -->
+<section class="slide dark">
+  <div class="topbar">
+    <div class="on-dark brandrow">
+      <img class="logo-img logo-lg" src="logos/OriginalLight.png" alt="Mustry Solutions">
+    </div>
+    <div class="stage on-dark">Lab 03 · Day 2 · 09:00 – 10:00</div>
+  </div>
+
+  <div class="cover">
+    <div class="eyebrow">Teaching · 60 min</div>
+    <div class="big">Validation as a <em>safety net</em> — automated.</div>
+    <div class="sub">Yesterday every check was you remembering to run it. Today we make the machine remember: linters that catch a broken Perspective binding before it ships, a GitHub Actions workflow that runs them on every PR, and a required check nobody can merge past. Plus: where CI actually <em style="color:#fff;font-style:normal">runs</em> — and what to do when it can't reach your gateway.</div>
+  </div>
+
+  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>Lab 03 — GitHub Actions</span></div>
+</section>
+
+<!-- 2 · WHERE WE ARE -->
+<section class="slide">
+  <div class="topbar">
+    <div class="brandrow"><img class="logo-img" src="logos/OriginalDark.png" alt="Mustry Solutions"></div>
+    <div class="stage">Teaching</div>
+  </div>
+
+  <div class="body">
+    <div class="sechead">
+      <span class="num">01</span>
+      <div>
+        <div class="title">From discipline to automation</div>
+        <div class="lead">Lab 02 deliberately shipped <b>no CI</b> — <span class="mono">ops/validate.sh</span> was something <b>you</b> remembered to run before opening a PR. Human discipline doesn't scale. Today that check becomes a machine's job.</div>
+      </div>
+    </div>
+    <div class="split">
+      <div>
+        <ul class="checks">
+          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Day 1 gave you the Git mindset</b> — the object model, branches, and PRs done right. The review process worked, but every quality gate was manual.</span></li>
+          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Same project as Lab 02</b> — a refrigeration-plant Perspective HMI plus two Jython script libraries. You're not learning new application code; you're building CI <b>around</b> code you know.</span></li>
+          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Today's goal in one sentence:</b> make "broken project files can't reach <span class="mono">main</span>" automatic.</span></li>
+          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Not today:</b> deploying <b>to</b> the gateway — that's Labs 04–05; today is the safety net, not the delivery truck. But the deployment environment itself is here: a compose-defined gateway running the exact files CI checks.</span></li>
+        </ul>
+      </div>
+      <div class="catcard" style="align-self:stretch">
+        <div class="pn">THIS HOUR — THREE CHAPTERS</div>
+        <h4>1 · Validation &amp; linters</h4>
+        <p>What a machine can check for you, and the one tool that actually understands Ignition.</p>
+        <h4 style="margin-top:16px">2 · GitHub Actions</h4>
+        <p>Workflows → jobs → steps, triggers, the runner model, and the required check.</p>
+        <h4 style="margin-top:16px">3 · Self-hosted runners</h4>
+        <p>Where CI runs when GitHub-hosted can't reach your plant network.</p>
+        <div class="ex">then → I-do (10:00) → you-do (11:00)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>Day 2 — Collaboration &amp; automation</span></div>
+</section>
+
+<!-- 3 · DIVIDER — CH 1 -->
+<section class="slide dark">
+  <div class="topbar">
+    <div class="on-dark brandrow"><img class="logo-img" src="logos/OriginalLight.png" alt="Mustry Solutions"></div>
+    <div class="stage on-dark">Chapter 1 · Validation &amp; linters</div>
+  </div>
+  <div class="divider">
+    <div class="eyebrow">Chapter 1</div>
+    <div class="q">What can a <em>machine</em> check for you?</div>
+    <div class="sub2">Every linter is a cheap, fast check that catches one class of bug. The skill isn't running them all — it's knowing which one would have caught <span style="color:#fff">yesterday's regression</span>.</div>
+  </div>
+  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>syntax → best practice → style</span></div>
+</section>
+
+<!-- 4 · THREE KINDS OF CHECK -->
+<section class="slide">
+  <div class="topbar">
+    <div class="brandrow"><img class="logo-img" src="logos/OriginalDark.png" alt="Mustry Solutions"></div>
+    <div class="stage">Validation &amp; linters</div>
+  </div>
+
+  <div class="body">
+    <div class="sechead">
+      <span class="num">02</span>
+      <div>
+        <div class="title">Three kinds of check</div>
+        <div class="lead">All "linting" is not the same. Sort every tool into one of three groups — it tells you how hard to enforce it.</div>
+      </div>
+    </div>
+    <div class="cat3">
+      <div class="catcard">
+        <div class="pn">GROUP 1</div>
+        <h4>Syntax</h4>
+        <p><b>Does the file even parse?</b> Cheap, fast, hard to argue with. A trailing comma in <span class="inlinecode">project.json</span> means the gateway can't load your resource.</p>
+        <div class="ex">yamllint · docker compose config<br>actionlint · ops/validate.sh</div>
+      </div>
+      <div class="catcard c2">
+        <div class="pn">GROUP 2</div>
+        <h4>Best practice</h4>
+        <p><b>Will this bite you later?</b> Not a syntax error — a "works today, breaks the moment someone renames something" warning. The most valuable group: it encodes operational wisdom.</p>
+        <div class="ex">shellcheck (unquoted $VAR)<br>ign-lint (brittle refs, runaway polls)</div>
+      </div>
+      <div class="catcard c3">
+        <div class="pn">GROUP 3</div>
+        <h4>Style</h4>
+        <p><b>Is it consistent?</b> Useful in a team — consistency reduces cognitive load — but the most fiddly. Tune or disable rules, <b>as long as the team agrees</b> and the config is checked in.</p>
+        <div class="ex">line-length · naming conventions<br>(PascalCase components…)</div>
+      </div>
+    </div>
+    <div class="callout">
+      <div class="lab" style="color:var(--blue)">The rule of thumb</div>
+      <p>Enable <b>groups 1 and 2 everywhere</b>; treat group 3 as <b>opt-in</b>. And the config lives <b>in the repo</b> — <code>.yamllint.yml</code>, <code>rule_config.json</code> — so the team agreement is version-controlled and enforced, not tribal knowledge.</p>
+    </div>
+  </div>
+
+  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>docs/validation-and-linters.md</span></div>
+</section>
+
+<!-- 5 · THE TOOLBELT -->
+<section class="slide">
+  <div class="topbar">
+    <div class="brandrow"><img class="logo-img" src="logos/OriginalDark.png" alt="Mustry Solutions"></div>
+    <div class="stage">Validation &amp; linters</div>
+  </div>
+
+  <div class="body">
+    <div class="sechead">
+      <span class="num">03</span>
+      <div>
+        <div class="title">The toolbelt — mapped to this repo</div>
+        <div class="lead">Six checks, each aimed at files we actually track. All of them are <b>gateway-free</b>: no Docker, no license, no gateway boot — which is exactly what makes them perfect for CI.</div>
+      </div>
+    </div>
+    <div class="tools">
+      <div class="thead"><span>Tool</span><span>Runs on</span><span>Catches</span></div>
+      <div class="trow"><code>yamllint</code><span class="tgt">docker-compose.yml · workflows · .yamllint.yml</span><span>YAML syntax + style — trailing spaces, <b>truthy</b> surprises (<span class="mono">on:</span>), indentation.</span></div>
+      <div class="trow"><code>shellcheck</code><span class="tgt">ops/*.sh</span><span>Nearly every shell bug ever made — the canonical <b>SC2086</b> unquoted <span class="mono">$VAR</span>.</span></div>
+      <div class="trow"><code>actionlint</code><span class="tgt">.github/workflows/*.yml</span><span>Actions workflow correctness — syntax, <b>expression typing</b>, stale runners &amp; actions.</span></div>
+      <div class="trow"><code>ign-lint</code><span class="tgt">projects/**/view.json</span><span><b>Ignition-native</b> static analysis: naming, poll rates, brittle references, embedded Python.</span></div>
+      <div class="trow"><code>ops/validate.sh</code><span class="tgt">every *.json + code.py under projects/</span><span>The <b>green/red PR signal</b>: valid JSON, parseable Python. Exit 0 = green, 1 = red.</span></div>
+      <div class="trow"><code>docker compose config -q</code><span class="tgt">docker-compose.yml</span><span>Compose <b>schema</b> — undefined services, port-string typos, malformed env maps.</span></div>
+    </div>
+    <div class="callout">
+      <div class="lab">Speed matters</div>
+      <p>Every one of these finishes in <b>milliseconds to seconds</b>. A check that's slower than your dev loop stops being a safety net and starts being a tax.</p>
+    </div>
+  </div>
+
+  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>All six run locally and in CI — same commands</span></div>
+</section>
+
+<!-- 6 · IGN-LINT DEEP DIVE -->
+<section class="slide">
+  <div class="topbar">
+    <div class="brandrow"><img class="logo-img" src="logos/OriginalDark.png" alt="Mustry Solutions"></div>
+    <div class="stage">Validation &amp; linters · the flagship</div>
+  </div>
+
+  <div class="body">
+    <div class="sechead">
+      <span class="num">04</span>
+      <div>
+        <div class="title"><span class="mono" style="font-size:34px">ign-lint</span> — the linter that understands Ignition</div>
+        <div class="lead">The other tools are generic. <span class="mono">ign-lint</span> parses Perspective <span class="mono">view.json</span>, walks the component tree, and checks the Python embedded in views — <b>without a running gateway</b>. Configured by <span class="mono">rule_config.json</span> in the repo root.</div>
+      </div>
+    </div>
+    <div class="split">
+      <div class="rules">
+        <div class="rrow"><code>NamePatternRule</code><span>components → <b>PascalCase</b><span class="sev err">error</span> · properties → camelCase<span class="sev warnp">warn</span> · handlers → kebab-case<span class="sev warnp">warn</span> · methods → snake_case<span class="sev err">error</span></span></div>
+        <div class="rrow"><code>PollingIntervalRule</code><span>floor on binding poll rates — <b>1000&nbsp;ms</b> in this lab. <span class="mono">now(250)</span> is a finding.</span></div>
+        <div class="rrow"><code>BadComponentReferenceRule</code><span>flags brittle traversal — <span class="mono">.getSibling()</span>, <span class="mono">.getParent()</span>, relative paths<span class="sev err">error</span></span></div>
+        <div class="rrow"><code>ComponentReferenceValidationRule</code><span>do relative references <b>actually resolve</b>? Validates expressions, bindings, scripts.</span></div>
+        <div class="rrow"><code>PylintScriptRule</code><span>runs pylint over the Python <b>inside views</b>, mapping categories to error/warning.</span></div>
+        <div class="rrow"><code>UnusedCustomPropertiesRule</code><span>custom properties nothing reads.</span></div>
+        <div class="rrow"><code>ExcessiveContextDataRule</code><span>oversized context data — big arrays, deep nesting, too many data points.</span></div>
+      </div>
+      <div>
+        <div class="code"><pre><span class="cm"># install (needs Python 3.10+)</span>
+pip install ign-lint==0.6.1
+
+<span class="cm"># run — same command locally and in CI</span>
+ign-lint --config rule_config.json \
+  --files <span class="cmd2">"projects/**/view.json"</span></pre></div>
+        <div class="callout" style="margin-top:16px">
+          <div class="lab">A note on maturity</div>
+          <p><b>Pre-1.0 (v0.6.1)</b>, from BW Design Group (<code>bw-design-group/ignition-lint</code>) — the best Ignition-native linter going today. <b>Pin the version</b>; the durable lesson is the <b>pattern</b> — an Ignition-aware linter as a required CI check — not the specific tool.</p>
+        </div>
+      </div>
+    </div>
+    <div class="refs">
+      <div class="ref"><b>config</b> rule_config.json — tuned so the clean lab-project passes with zero findings</div>
+      <div class="ref"><b>docs</b> bw-design-group.github.io/ignition-lint</div>
+    </div>
+  </div>
+
+  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>Every finding you'll see today was planted on purpose</span></div>
+</section>
+
+<!-- 7 · THE BROKEN BINDING STORY (stepped, dark) -->
+<section class="slide dark">
+  <div class="topbar">
+    <div class="on-dark brandrow"><img class="logo-img" src="logos/OriginalLight.png" alt="Mustry Solutions"></div>
+    <div class="stage on-dark">Validation &amp; linters · a real finding</div>
+  </div>
+
+  <div class="stage-wrap">
+    <div class="vtitle">The bug the gateway won't tell you about</div>
+    <p class="lead" style="text-align:center;margin:6px auto 0;color:#c4cfde">The lab's Overview HMI — four KPI tiles and a clock. Watch what one rename does to it.</p>
+
+    <div class="hmiwrap">
+      <div class="hmi reveal" data-step="0">
+        <div class="hmihead">
+          <span class="t">Cold-Storage Overview</span>
+          <span class="clock" id="hmi-clock">Clock · now(1000)</span>
+        </div>
+        <div class="tiles">
+          <div class="tile"><div class="tl">Suction</div><div class="tv">32.4 psi</div><div class="tn" id="tile-suction">Suction</div></div>
+          <div class="tile" id="tile-discharge"><div class="tl">Discharge</div><div class="tv" id="discharge-val">−6.5 °C</div><div class="tn">Discharge</div></div>
+          <div class="tile"><div class="tl">Load</div><div class="tv">68 %</div><div class="tn">Load</div></div>
+          <div class="tile"><div class="tl">Power</div><div class="tv">412 kW</div><div class="tn">Power</div></div>
+        </div>
+        <div class="bindline" id="bind-code">Discharge.Value ⟵ <span style="color:var(--teal-l)">runScript('lab.display.format_reading', 0, -6.5, '°C')</span></div>
+      </div>
+      <div>
+        <div class="reveal" data-step="2">
+          <div class="findbox" style="border-color:rgba(255,255,255,.2);background:rgba(255,255,255,.04)">
+            <div class="fr" style="color:var(--peri2)">the edit</div>
+            <p>Someone points Discharge at a <b style="color:#fff">sibling tile by relative path</b>… and someone else renames <span class="mono">SuctionPressure</span> → <span class="mono">Suction</span>. The view still loads. The tile just goes <b style="color:#ef8f8f">quietly blank</b>.</p>
+          </div>
+        </div>
+        <div class="reveal" data-step="3">
+          <div class="findbox">
+            <div class="fr">BadComponentReferenceRule · error</div>
+            <p><span class="mono">../../</span> traversal couples this binding to the view's <b style="color:#fff">structure</b> — reorganise the tree and it breaks.</p>
+          </div>
+          <div class="findbox">
+            <div class="fr">ComponentReferenceValidationRule · error</div>
+            <p><span class="mono">SuctionPressure</span> doesn't resolve — there is <b style="color:#fff">no such component</b> anymore.</p>
+          </div>
+        </div>
+        <div class="reveal" data-step="4">
+          <div class="findbox">
+            <div class="fr">PollingIntervalRule · error</div>
+            <p>The Clock now polls at <span class="mono">now(250)</span> — 4×/second, under the 1000&nbsp;ms floor. Multiply by every open session and you're hammering the gateway.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <span class="lead-step" id="binding-step">A healthy view: Discharge gets its value from a clean <b>runScript data binding</b>.</span>
+    <button class="btn" data-act="back">◀ Back</button>
+    <button class="btn primary" data-act="next">Next ▶</button>
+  </div>
+</section>
+
+<!-- 8 · VALIDATE.SH + WHEN LINTING HURTS -->
+<section class="slide">
+  <div class="topbar">
+    <div class="brandrow"><img class="logo-img" src="logos/OriginalDark.png" alt="Mustry Solutions"></div>
+    <div class="stage">Validation &amp; linters · the backstop</div>
+  </div>
+
+  <div class="body">
+    <div class="sechead">
+      <span class="num">05</span>
+      <div>
+        <div class="title"><span class="mono" style="font-size:34px">ops/validate.sh</span> — the backstop, and the limits</div>
+        <div class="lead"><span class="mono">ign-lint</span> goes deep on views; <span class="mono">validate.sh</span> goes broad on everything. Nothing but <span class="mono">python3</span>, about a second, exit <b>0 or 1</b>.</div>
+      </div>
+    </div>
+    <div class="cols2">
+      <div>
+        <div class="code"><pre><span class="cm"># what it checks — the whole thing:</span>
+<span class="cm"># 1. every *.json under projects/ is valid JSON</span>
+<span class="cm"># 2. every code.py parses as Python 3</span>
+ops/validate.sh
+<span class="ok">→ ✓ all project files valid   (exit 0)</span>
+
+<span class="cm"># after a hand-edit leaves a trailing comma…</span>
+ops/validate.sh
+<span class="bad">→ ✗ invalid JSON: projects/lab-project/project.json
+→ ✗ validation failed          (exit 1)</span></pre></div>
+        <div class="callout" style="margin-top:16px">
+          <div class="lab">Honest fine print</div>
+          <p>The gateway runs <b>Jython 2.7</b>; this is a fast <b>Python-3 parse check</b>, not a Jython validator. Write Python-3-parseable syntax and you're fine — the lab's scripts already are.</p>
+        </div>
+      </div>
+      <div>
+        <div class="catcard c2" style="height:auto">
+          <div class="pn">LINTING HELPS WHEN…</div>
+          <p>· it catches the bug <b>every</b> dev would hit<br>· it's fast enough to run on save (or pre-commit)<br>· the config matches <b>your team's reality</b>, not a pasted default</p>
+        </div>
+        <div class="catcard c3" style="height:auto;margin-top:16px">
+          <div class="pn">…AND HURTS WHEN</div>
+          <p>· it flags <b>style as errors</b> and blocks PRs<br>· it's slower than the dev loop<br>· the config <b>drifts from reality</b> and nobody agrees with it anymore</p>
+          <div class="ex">the cure: tune the checked-in config — don't disable the linter</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>Exit code = the PR's green/red signal</span></div>
+</section>
+
+<!-- 9 · DIVIDER — CH 2 -->
+<section class="slide dark">
+  <div class="topbar">
+    <div class="on-dark brandrow"><img class="logo-img" src="logos/OriginalLight.png" alt="Mustry Solutions"></div>
+    <div class="stage on-dark">Chapter 2 · GitHub Actions</div>
+  </div>
+  <div class="divider">
+    <div class="eyebrow">Chapter 2</div>
+    <div class="q">Who runs the checks when <em>you</em> forget?</div>
+    <div class="sub2">Local linters still depend on you running them. GitHub Actions runs them on <span style="color:#fff">every pull request, every time</span> — and then tells GitHub whether the merge button should work.</div>
+  </div>
+  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>workflows → jobs → steps</span></div>
+</section>
+
+<!-- 10 · ANATOMY (stepped, dark) -->
+<section class="slide dark">
+  <div class="topbar">
+    <div class="on-dark brandrow"><img class="logo-img" src="logos/OriginalLight.png" alt="Mustry Solutions"></div>
+    <div class="stage on-dark">GitHub Actions · anatomy</div>
+  </div>
+
+  <div class="stage-wrap">
+    <div class="vtitle">Workflow ⊃ jobs ⊃ steps</div>
+    <p class="lead" style="text-align:center;margin:6px auto 0;color:#c4cfde">One YAML file in <span class="mono" style="color:#dbe4f0">.github/workflows/</span> — this is the lab's real <span class="mono" style="color:#dbe4f0">ci.yml</span>, drawn as boxes.</p>
+
+    <div class="anat">
+      <div class="wfbox reveal" data-step="0">
+        <div class="wfl">
+          <span class="n">workflow — <span class="mono" style="font-weight:600">.github/workflows/ci.yml</span></span>
+          <span class="m">on: pull_request + push · permissions: contents: read · name: CI</span>
+        </div>
+        <div class="jobrow">
+          <div class="jobbox reveal" data-step="1">
+            <div class="jl"><span class="n">job: lint</span><span class="m">runs-on: ubuntu-latest</span></div>
+            <div class="stp uses reveal" data-step="2"><span>actions/checkout@v4</span><span class="k">uses · an action</span></div>
+            <div class="stp uses reveal" data-step="2"><span>actions/setup-python@v5 · "3.12"</span><span class="k">uses</span></div>
+            <div class="stp runs reveal" data-step="2"><span>pip install yamllint==1.35.1 ign-lint==0.6.1</span><span class="k">run · shell</span></div>
+            <div class="stp runs reveal" data-step="2"><span>yamllint · actionlint · shellcheck · ign-lint</span><span class="k">run</span></div>
+            <div class="stp runs reveal" data-step="2"><span>docker compose config -q</span><span class="k">run</span></div>
+          </div>
+          <div class="jobbox reveal" data-step="1">
+            <div class="jl"><span class="n">job: validate</span><span class="m">runs-on: ubuntu-latest</span></div>
+            <div class="stp uses reveal" data-step="2"><span>actions/checkout@v4</span><span class="k">uses</span></div>
+            <div class="stp runs reveal" data-step="2"><span>ops/validate.sh</span><span class="k">run</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <span class="lead-step" id="anatomy-step">The <b>workflow</b> is the file: it owns the triggers (<span class="mono">on:</span>), permissions, and a name.</span>
+    <button class="btn" data-act="back">◀ Back</button>
+    <button class="btn primary" data-act="next">Next ▶</button>
+  </div>
+</section>
+
+<!-- 11 · TRIGGERS -->
+<section class="slide">
+  <div class="topbar">
+    <div class="brandrow"><img class="logo-img" src="logos/OriginalDark.png" alt="Mustry Solutions"></div>
+    <div class="stage">GitHub Actions · triggers</div>
+  </div>
+
+  <div class="body">
+    <div class="sechead">
+      <span class="num">06</span>
+      <div>
+        <div class="title">Triggers — the <span class="mono" style="font-size:34px">on:</span> block</div>
+        <div class="lead">Events start workflows. This lab uses two, plus <b>path filters</b> so docs-only PRs don't waste a runner.</div>
+      </div>
+    </div>
+    <div class="cols2">
+      <div>
+        <div class="code"><pre><span class="cm"># the lab's ci.yml — real triggers</span>
+on:
+  pull_request:          <span class="cm"># every PR update</span>
+    paths:               <span class="cm"># …that touches code we check</span>
+      - <span class="cmd2">"projects/**"</span>
+      - <span class="cmd2">"ops/**"</span>
+      - <span class="cmd2">"docker-compose.yml"</span>
+      - <span class="cmd2">".github/workflows/**"</span>
+      - <span class="cmd2">".yamllint.yml"</span>
+      - <span class="cmd2">"rule_config.json"</span>
+  push:
+    branches: [main]     <span class="cm"># backstop after merge</span></pre></div>
+      </div>
+      <div>
+        <ul class="checks">
+          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b><span class="mono">pull_request</span></b> — runs on open and on every push to the PR branch. The workhorse for checks.</span></li>
+          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b><span class="mono">push: branches: [main]</span></b> — the backstop: verifies main itself stays green after merges and direct pushes.</span></li>
+          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b><span class="mono">paths:</span></b> — a README-only PR doesn't spin up two VMs to lint files it never touched. The workflow is <b>skipped</b>, not passed — you'll verify the difference in the lab.</span></li>
+          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Others you'll meet:</b> <span class="mono">workflow_dispatch</span> (a manual Run button — the runner demo uses it), <span class="mono">schedule</span> (cron), <span class="mono">release</span>.</span></li>
+        </ul>
+        <div class="callout" style="margin-top:16px">
+          <div class="lab">Filter discipline</div>
+          <p>Too narrow (one file) and view changes sneak past. Too broad (<code>"**"</code>) and the filter is pointless. Cover the <b>directories the checks actually read</b> — including the configs like <code>rule_config.json</code>.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>.github/workflows/ci.yml</span></div>
+</section>
+
+<!-- 12 · RUNNER MODEL (stepped, dark) -->
+<section class="slide dark">
+  <div class="topbar">
+    <div class="on-dark brandrow"><img class="logo-img" src="logos/OriginalLight.png" alt="Mustry Solutions"></div>
+    <div class="stage on-dark">GitHub Actions · the runner model</div>
+  </div>
+
+  <div class="stage-wrap">
+    <div class="vtitle">Where does it actually run?</div>
+    <p class="lead" style="text-align:center;margin:6px auto 0;color:#c4cfde">Every <b style="color:#fff">job</b> gets a <b style="color:#fff">fresh, ephemeral virtual machine</b>. Jobs run in parallel and share nothing.</p>
+
+    <div class="lanes">
+      <div class="evcard reveal" data-step="0">
+        <span class="e1">event</span>
+        <span class="e2">You push to a PR branch → GitHub matches it against <span class="mono">on:</span> → schedules the workflow's jobs.</span>
+      </div>
+      <div class="vm reveal" data-step="1">
+        <div class="vmh"><span class="n">job: lint</span><span class="tag">fresh VM · ubuntu-latest</span></div>
+        <div class="stp uses reveal" data-step="2"><span>checkout — clone <b>your repo</b> into the empty VM</span><span class="k">1</span></div>
+        <div class="stp uses reveal" data-step="2"><span>setup-python "3.12"</span><span class="k">2</span></div>
+        <div class="stp runs reveal" data-step="2"><span>pip install … → yamllint → actionlint → shellcheck → ign-lint</span><span class="k">3…7</span></div>
+        <div class="die reveal" data-step="3">job ends → VM destroyed. Nothing survives.</div>
+      </div>
+      <div class="vm reveal" data-step="1">
+        <div class="vmh"><span class="n">job: validate</span><span class="tag">another fresh VM</span></div>
+        <div class="stp uses reveal" data-step="2"><span>checkout — its <b>own</b> clone; it saw nothing of lint's VM</span><span class="k">1</span></div>
+        <div class="stp runs reveal" data-step="2"><span>ops/validate.sh → exit 0 or 1 = the job's result</span><span class="k">2</span></div>
+        <div class="die reveal" data-step="3">job ends → VM destroyed. Nothing survives.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <span class="lead-step" id="runner-step">It starts with an <b>event</b> — a push to a PR branch.</span>
+    <button class="btn" data-act="back">◀ Back</button>
+    <button class="btn primary" data-act="next">Next ▶</button>
+  </div>
+</section>
+
+<!-- 13 · READING THE REAL CI.YML -->
+<section class="slide">
+  <div class="topbar">
+    <div class="brandrow"><img class="logo-img" src="logos/OriginalDark.png" alt="Mustry Solutions"></div>
+    <div class="stage">GitHub Actions · the lab's workflow</div>
+  </div>
+
+  <div class="body">
+    <div class="sechead">
+      <span class="num">07</span>
+      <div>
+        <div class="title">Reading the lab's <span class="mono" style="font-size:34px">ci.yml</span></div>
+        <div class="lead">This is the file you'll build from scratch in the I-do and finish in the lab. Two independent jobs — the Part 1 linters, and the validator.</div>
+      </div>
+    </div>
+    <div class="cols2">
+      <div class="code"><pre>name: CI
+on:
+  pull_request:
+    paths: [<span class="cmd2">"projects/**"</span>, <span class="cmd2">"ops/**"</span>, …]
+  push:
+    branches: [main]
+permissions:
+  contents: read          <span class="cm"># least privilege</span>
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: <span class="cmd2">"3.12"</span>   <span class="cm"># quoted!</span>
+      - run: pip install yamllint==1.35.1 ign-lint==0.6.1
+      - run: yamllint -c .yamllint.yml .
+      - uses: raven-actions/actionlint@v2
+      - run: shellcheck ops/*.sh   <span class="cm"># apt-get install first</span>
+      - run: ign-lint --config rule_config.json --files <span class="cmd2">"projects/**/view.json"</span>
+      - run: docker compose config -q
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: ops/validate.sh</pre></div>
+      <div>
+        <ul class="checks">
+          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Two jobs, two VMs, parallel.</b> Independent failures: a shell bug fails <span class="mono">lint</span>; broken JSON fails <span class="mono">validate</span>.</span></li>
+          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Steps are sequential</b> — a failing step skips the rest of its job and fails it. (<span class="mono">continue-on-error</span> and <span class="mono">needs:</span> exist for when you want different behaviour.)</span></li>
+          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b><span class="mono">"3.12"</span> is quoted</b> because unquoted YAML coerces it to the float <b>3.1</b>. A classic. And <span class="mono">ign-lint</span> needs Python 3.10+, so the pin matters.</span></li>
+          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>The <span class="mono">--files</span> glob is quoted</b> so the runner's shell doesn't expand it before ign-lint sees it.</span></li>
+          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>No reusable workflows here</b> — deliberately. You see what's inside before you ever call one.</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>Same commands you ran locally — that's the point</span></div>
+</section>
+
+<!-- 14 · PERMISSIONS & SECRETS -->
+<section class="slide">
+  <div class="topbar">
+    <div class="brandrow"><img class="logo-img" src="logos/OriginalDark.png" alt="Mustry Solutions"></div>
+    <div class="stage">GitHub Actions · trust</div>
+  </div>
+
+  <div class="body">
+    <div class="sechead">
+      <span class="num">08</span>
+      <div>
+        <div class="title">Permissions, <span class="mono" style="font-size:32px">GITHUB_TOKEN</span> &amp; secrets</div>
+        <div class="lead">A workflow is code that runs with credentials. Treat those credentials like production access — because one day they will be.</div>
+      </div>
+    </div>
+    <ul class="checks" style="max-width:960px">
+      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b><span class="mono">permissions: contents: read</span></b> — least privilege at the workflow level. The default <span class="mono">GITHUB_TOKEN</span> grant is broader than a lint job ever needs; our jobs only read the repo, so that's all they get.</span></li>
+      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b><span class="mono">GITHUB_TOKEN</span></b> — auto-provisioned <b>per job</b>, scoped to <b>this repo</b>, expires when the job ends. You never create it, rotate it, or store it.</span></li>
+      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Secrets</b> — encrypted at rest, injected on demand, and <b>masked as <span class="mono">***</span> in logs</b>. In the I-do we add an <span class="mono">EXAMPLE_SECRET</span>, echo it, and watch GitHub censor it live.</span></li>
+      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Variables</b> — the unencrypted sibling. Fine for a gateway URL; never for a password. If it would hurt in a screenshot, it's a secret.</span></li>
+    </ul>
+    <div class="callout">
+      <div class="lab">Foreshadowing</div>
+      <p>Masking is a <b>display feature, not a security boundary</b> — a malicious workflow can still exfiltrate a secret it has access to. That's why permissions and triggers matter, and why Day 4 spends a whole session on <b>secrets management</b> done properly.</p>
+    </div>
+  </div>
+
+  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>Least privilege by default</span></div>
+</section>
+
+<!-- 15 · REQUIRED CHECKS -->
+<section class="slide">
+  <div class="topbar">
+    <div class="brandrow"><img class="logo-img" src="logos/OriginalDark.png" alt="Mustry Solutions"></div>
+    <div class="stage">GitHub Actions · the gate</div>
+  </div>
+
+  <div class="body">
+    <div class="sechead">
+      <span class="num">09</span>
+      <div>
+        <div class="title">Required checks — CI grows teeth</div>
+        <div class="lead">A green workflow is information. A <b>required status check</b> is enforcement: branch protection on <span class="mono">main</span> disables the merge button until <span class="mono">lint</span> and <span class="mono">validate</span> pass.</div>
+      </div>
+    </div>
+    <div class="cols2">
+      <div>
+        <ul class="checks">
+          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Settings → Branches → protect <span class="mono">main</span>:</b> require a PR before merging, and require the <b><span class="mono">lint</span></b> and <b><span class="mono">validate</span></b> checks to pass.</span></li>
+          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>The shift in language:</b> from <i>"please remember to run the linters"</i> to <i>"you <b>cannot</b> merge until they pass."</i> The safety net stops depending on memory.</span></li>
+          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>You'll prove it in the lab:</b> plant the broken state, open a PR, and watch GitHub physically block the merge — then fix, re-push, and merge.</span></li>
+        </ul>
+      </div>
+      <div>
+        <div class="callout" style="margin-top:0">
+          <div class="lab">It's a team contract</div>
+          <p>A required check is a <b>contract with the team</b>, not just a setting. Who decides what's blocking? Who maintains CI when it's flaky? A check the team routinely overrides is worse than no check — it trains everyone to ignore red.</p>
+        </div>
+        <!-- TODO [VERIFY]: interaction between paths: filters and required checks — when a docs-only PR
+             skips the workflow, GitHub leaves required checks in "Expected" state, which can block the
+             merge of docs-only PRs. GitHub's documented workaround is a no-op workflow with the same job
+             names (or GitHub's newer "skipped checks count as passed" behaviour for paths-filtered
+             workflows — verify current behaviour before teaching this slide). lab.md step 1 + step 4
+             combined may hit this. -->
+        <div class="callout" style="margin-top:16px">
+          <div class="lab" style="color:var(--blue)">Also in this club</div>
+          <p><b>Required reviews</b> (Day 1's PR discipline) and required checks compose: human judgement <i>and</i> machine verification, both enforced by the same branch-protection rule.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>Branch protection on main · lint + validate</span></div>
+</section>
+
+<!-- 16 · THE DEPLOYMENT ENVIRONMENT -->
+<section class="slide">
+  <div class="topbar">
+    <div class="brandrow"><img class="logo-img" src="logos/OriginalDark.png" alt="Mustry Solutions"></div>
+    <div class="stage">The deployment environment</div>
+  </div>
+
+  <div class="body">
+    <div class="sechead">
+      <span class="num">10</span>
+      <div>
+        <div class="title">The deployment environment — one gateway, wired for CI</div>
+        <div class="lead">Everything so far ran <b>gateway-free</b> — but the environment those files deploy to is in the repo too. <span class="mono">docker-compose.yml</span> defines one Ignition 8.3 gateway; <span class="mono">ops/</span> gives it a lifecycle. Two mounts explain the whole design.</div>
+      </div>
+    </div>
+    <div class="split">
+      <div>
+        <ul class="checks">
+          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Named volume <span class="mono">ignition-data</span></b> — the gateway's own config + runtime state, self-generated on first boot. It never lands in the repo, so you never touch gateway config here (that's Lab 04).</span></li>
+          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Bind mount <span class="mono">./projects</span></b> — the one thing edited from the repo. The files <span class="mono">ign-lint</span> and <span class="mono">validate.sh</span> check <b>are</b> the files the gateway runs — no packaging step for drift to hide in.</span></li>
+          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Edits aren't auto-detected</b> — a running gateway won't see changes to the bind-mounted files until you trigger a project scan (<span class="mono">ops/scan.sh</span>, needs an API key in <span class="mono">.env</span>) or <span class="mono">docker compose restart</span>.</span></li>
+          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>The bridge to Chapter 3:</b> this gateway answers on <span class="mono">localhost:8088</span>. A production gateway sits behind a firewall — and deploying <b>into</b> it (Labs 04–05) is exactly when CI needs a machine that can reach it.</span></li>
+        </ul>
+      </div>
+      <div>
+        <div class="code"><pre><span class="cm"># docker-compose.yml — the two mounts that matter</span>
+volumes:
+  - ignition-data:/usr/local/bin/ignition/data        <span class="cm"># gateway-owned</span>
+  - ./projects:/usr/local/bin/ignition/data/projects  <span class="cm"># the repo's files</span>
+
+<span class="cm"># its lifecycle — ops/</span>
+ops/setup.sh      <span class="cm"># boot + wait for RUNNING → localhost:8088</span>
+ops/scan.sh       <span class="cm"># push project-file edits to the live gateway</span>
+ops/teardown.sh   <span class="cm"># stop · --volumes wipes gateway state</span></pre></div>
+        <div class="callout" style="margin-top:16px">
+          <div class="lab" style="color:var(--blue)">Why CI never boots it</div>
+          <p>Every check in <code>ci.yml</code> validates this environment <b>without starting it</b>: <code>docker compose config -q</code> checks the environment's definition; <code>ign-lint</code> and <code>ops/validate.sh</code> check the project files it serves. Booting a gateway per PR would be slow and stateful — the checks are fast precisely because they don't.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>docker-compose.yml · ops/setup.sh · scan.sh · teardown.sh</span></div>
+</section>
+
+<!-- 17 · DIVIDER — CH 3 -->
+<section class="slide dark">
+  <div class="topbar">
+    <div class="on-dark brandrow"><img class="logo-img" src="logos/OriginalLight.png" alt="Mustry Solutions"></div>
+    <div class="stage on-dark">Chapter 3 · Self-hosted runners</div>
+  </div>
+  <div class="divider">
+    <div class="eyebrow">Chapter 3</div>
+    <div class="q">What if CI can't <em>reach</em> your gateway?</div>
+    <div class="sub2">GitHub-hosted runners live in GitHub's cloud. Your production gateway lives behind a firewall, on a customer VPN, next to a PLC network. Sooner or later, CI has to come to <span style="color:#fff">you</span>.</div>
+  </div>
+  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>a look ahead — hands-on in Labs 04–05</span></div>
+</section>
+
+<!-- 18 · SELF-HOSTED — ARCHITECTURE & WHEN -->
+<section class="slide dark">
+  <div class="topbar">
+    <div class="on-dark brandrow"><img class="logo-img" src="logos/OriginalLight.png" alt="Mustry Solutions"></div>
+    <div class="stage on-dark">Self-hosted runners · architecture</div>
+  </div>
+
+  <div class="stage-wrap">
+    <div class="vtitle">The runner comes to the network — not the other way</div>
+    <p class="lead" style="text-align:center;margin:6px auto 0;color:#c4cfde">A runner is a lightweight agent that <b style="color:#fff">polls GitHub outbound</b> for jobs. There is <b style="color:#fff">no inbound connection</b> from GitHub — nothing to open on the firewall.</p>
+
+    <div class="net">
+      <div class="netbox">
+        <div class="nh">GitHub's cloud</div>
+        <div class="ni">Actions service — queues jobs, stores logs</div>
+        <div class="ni">GitHub-hosted runners (ubuntu-latest…)<br><span style="color:#8fa0b6">fine for lint + validate — no plant access needed</span></div>
+      </div>
+      <div class="fw"><div class="wall"></div><div class="cap">firewall / VPN</div></div>
+      <div class="netbox plant">
+        <div class="nh">Your network (plant / customer site)</div>
+        <div class="ni hl">self-hosted runner — polls outbound: "any jobs for me?" → executes → returns logs</div>
+        <div class="ni">Ignition gateway(s) — the deploy target GitHub-hosted can never reach</div>
+        <div class="ni">PLC network · historian DB · internal artifact registry</div>
+      </div>
+    </div>
+
+    <ul class="checks" style="max-width:1050px">
+      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>When you need one:</b> ① <b>network isolation</b> — the big one for Ignition; ② compliance / data residency; ③ real hardware (a physical PLC, an OPC-UA server); ④ cost at very high volume — rarely, don't optimise prematurely.</span></li>
+      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>When you don't:</b> everything in today's lab. Lint and validate run on a standard image — use GitHub-hosted and move on. A runner host is a machine you now <b>own, patch, and monitor</b>.</span></li>
+    </ul>
+  </div>
+
+  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>docs/self-hosted-runners.md</span></div>
+</section>
+
+<!-- 19 · SELF-HOSTED — THE ONE RULE -->
+<section class="slide">
+  <div class="topbar">
+    <div class="brandrow"><img class="logo-img" src="logos/OriginalDark.png" alt="Mustry Solutions"></div>
+    <div class="stage">Self-hosted runners · security</div>
+  </div>
+
+  <div class="body">
+    <div class="sechead">
+      <span class="num">11</span>
+      <div>
+        <div class="title">The one rule — and the guardrails</div>
+        <div class="lead">A self-hosted runner <b>executes arbitrary workflow code inside your network</b>, with the host's filesystem, network reach, and cached credentials. Treat it as highly trusted infrastructure.</div>
+      </div>
+    </div>
+    <div class="cols2">
+      <div>
+        <div class="callout" style="margin-top:0;border-left:5px solid var(--red)">
+          <div class="lab" style="color:var(--red)">Never do this</div>
+          <p><b>Never attach a self-hosted runner to a public repo that accepts fork PRs.</b> A malicious PR edits the workflow, the runner dutifully executes it — exfiltrated secrets, a backdoor, a pivot into the PLC network. This is not theoretical.</p>
+        </div>
+        <div class="code" style="margin-top:16px"><pre><span class="cm"># the demo you'll see in the I-do:</span>
+<span class="cm"># ephemeral Docker runner, one job, then gone</span>
+docker run -d --rm --name lab03-runner \
+  -e REPO_URL=<span class="cmd2">"https://github.com/&lt;you&gt;/&lt;repo&gt;"</span> \
+  -e RUNNER_TOKEN=<span class="cmd2">"$RUNNER_TOKEN"</span> \
+  -e LABELS=<span class="cmd2">"self-hosted,local-lab03"</span> \
+  -e EPHEMERAL=true \
+  myoung34/github-runner:latest</pre></div>
+      </div>
+      <div>
+        <ul class="checks">
+          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Ephemeral runners</b> — destroyed after every job; a compromised job leaves nothing behind.</span></li>
+          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Private repos only</b>, restricted workflow triggers, approval required for first-time contributors.</span></li>
+          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Network-isolate the runner</b> — its own subnet, only the outbound access it needs. Never production credentials on the host; short-lived tokens via OIDC.</span></li>
+          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>The runner only has what you put on it.</b> No preinstalled shellcheck, no Python — the "works on ubuntu-latest" assumption dies here. You'll see this live in the demo.</span></li>
+          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Where it sits for Ignition:</b> a dedicated build host with network access <b>to</b> the gateway — not on the gateway server itself. Hands-on in Labs 04–05.</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>Ephemeral · private · isolated · short-lived credentials</span></div>
+</section>
+
+<!-- 20 · CLOSING / HANDOFF -->
+<section class="slide dark">
+  <div class="topbar">
+    <div class="on-dark brandrow"><img class="logo-img" src="logos/OriginalLight.png" alt="Mustry Solutions"></div>
+    <div class="stage on-dark">Teaching → I-do → You-do</div>
+  </div>
+
+  <div class="body">
+    <div class="eyebrow">Now we make it real</div>
+    <div class="title" style="max-width:24ch;color:#fff">Next: we <em style="font-style:normal;color:var(--peri2)">break</em> the project on purpose — and let the machines find it.</div>
+    <ul class="checks" style="max-width:960px;margin-top:22px">
+      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>I-do (10:00).</b> <span class="mono">ops/seed.sh</span> plants six realistic bugs — including the brittle binding and the runaway poll you just saw. We run every linter live, read the output, fix one finding each. Then we build <span class="mono">ci.yml</span> from scratch, open a PR, watch a secret get masked, and register an ephemeral runner.</span></li>
+      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>You-do (11:00, breakout rooms).</b> You hunt the remaining findings yourself, tune <span class="mono">.yamllint.yml</span>, then finish the workflow in <b>your own repo</b>: path filters, compose validation, a badge, and a required check that blocks a red PR.</span></li>
+      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>The payoff.</b> By lunch, "broken project files can't reach <span class="mono">main</span>" is not a promise — it's a setting.</span></li>
+    </ul>
+  </div>
+
+  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>Next → I-do (10:00) · exercises/lab.md</span></div>
+</section>
+
+</div>
+
+<div class="hud"><div class="bar" id="bar"></div></div>
+<div class="pager" id="pager">01 / 20</div>
+<div class="hint" id="hint">↑ ↓ slides · ← → step the animation</div>
+
+<script>
+/* ============ deck navigation ============ */
+const deck=document.getElementById('deck');
+const slides=[...document.querySelectorAll('.slide')];
+const bar=document.getElementById('bar');
+const pager=document.getElementById('pager');
+const hint=document.getElementById('hint');
+function pad(n){return String(n).padStart(2,'0')}
+function curIndex(){return Math.round(deck.scrollTop/window.innerHeight)}
+function update(){
+  const i=curIndex();
+  bar.style.width=((i)/(slides.length-1)*100)+'%';
+  pager.textContent=pad(i+1)+' / '+pad(slides.length);
+  const dark=slides[i]&&slides[i].classList.contains('dark');
+  pager.classList.toggle('on-dark',dark);
+  hint.classList.toggle('on-dark',dark);
+}
+deck.addEventListener('scroll',()=>{requestAnimationFrame(update)});
+window.addEventListener('keydown',e=>{
+  if(e.target.tagName==='BUTTON')return;
+  const i=curIndex();
+  // Up/Down (and PageUp/Down) always move between slides
+  if(e.key==='ArrowDown'||e.key==='PageDown'){e.preventDefault();deck.scrollTo({top:(i+1)*window.innerHeight})}
+  if(e.key==='ArrowUp'||e.key==='PageUp'){e.preventDefault();deck.scrollTo({top:(i-1)*window.innerHeight})}
+  if(e.key==='Home'){deck.scrollTo({top:0})}
+  if(e.key==='End'){deck.scrollTo({top:slides.length*window.innerHeight})}
+  // Left/Right ONLY step the current slide's animation — they never change slides.
+  if(e.key==='ArrowRight'){e.preventDefault(); if(bound[i])bound[i].go(1);}
+  if(e.key==='ArrowLeft'){e.preventDefault(); if(bound[i])bound[i].go(-1);}
+});
+update();
+setTimeout(()=>{hint.style.transition='opacity .6s';hint.style.opacity='0'},5000);
+
+/* ============ per-slide step controllers ============ */
+/* Each controller: {max, render(step)}. Buttons call go(±1). */
+const controllers={};
+function bindControls(slideEl,ctrl){
+  let step=0;
+  const next=slideEl.querySelector('[data-act="next"]');
+  const back=slideEl.querySelector('[data-act="back"]');
+  function sync(){ if(back)back.disabled=step<=0; if(next)next.disabled=step>=ctrl.max; ctrl.render(step); }
+  function go(d){ const prev=step; step=Math.max(0,Math.min(ctrl.max,step+d)); if(step!==prev){sync();return true;} return false; }
+  if(next)next.addEventListener('click',()=>go(1));
+  if(back)back.addEventListener('click',()=>go(-1));
+  ctrl.reset=()=>{step=0;sync();};
+  sync();
+  return {go,reset:ctrl.reset};
+}
+/* helper: show all [data-step] reveals up to step s inside a slide */
+function revealUpTo(slide,s){
+  slide.querySelectorAll('.reveal').forEach(it=>it.classList.toggle('show',+it.dataset.step<=s));
+}
+
+/* ---------- slide 7 (index 6): the broken binding story ---------- */
+(function(){
+  const slide=slides[6];
+  const lead=slide.querySelector('#binding-step');
+  const bind=slide.querySelector('#bind-code');
+  const tile=slide.querySelector('#tile-discharge');
+  const dval=slide.querySelector('#discharge-val');
+  const clock=slide.querySelector('#hmi-clock');
+  const CLEAN="Discharge.Value ⟵ <span style='color:var(--teal-l)'>runScript('lab.display.format_reading', 0, -6.5, '°C')</span>";
+  const BROKEN="Discharge.Value ⟵ <span style='color:#ef8f8f'>{../../SuctionPressure.Value.props.text}</span>  <span style='color:#7d93ad'>// renamed → Suction</span>";
+  const texts=[
+    'A healthy view: Discharge gets its value from a clean <b>runScript data binding</b>.',
+    'The component tree names: <b>Suction · Discharge · Load · Power</b> — plus a Clock polling <b>now(1000)</b>.',
+    'The edit lands. The view <b>still loads</b> — the gateway raises no error. The tile just goes blank. A human reviewer skimming <span class="mono">view.json</span> in a PR diff would probably miss it too.',
+    '<b>ign-lint catches it twice</b>: brittle traversal (BadComponentReferenceRule) and a reference that doesn\'t resolve (ComponentReferenceValidationRule). Statically. In seconds. No gateway.',
+    'And the second seeded bug: the Clock at <b>now(250)</b> trips PollingIntervalRule. In the lab, <span class="mono">ops/seed.sh</span> plants exactly these — you\'ll hunt them down yourself.'
+  ];
+  controllers.binding={max:4,render(s){
+    revealUpTo(slide,s);
+    const broken=s>=2;
+    bind.innerHTML=broken?BROKEN:CLEAN;
+    bind.classList.toggle('badb',broken);
+    tile.classList.toggle('broken',broken);
+    dval.textContent=broken?'— — —':'−6.5 °C';
+    clock.textContent=s>=4?'Clock · now(250)':'Clock · now(1000)';
+    clock.classList.toggle('bad2',s>=4);
+    lead.innerHTML=texts[s];
+  }};
+})();
+
+/* ---------- slide 10 (index 9): workflow anatomy ---------- */
+(function(){
+  const slide=slides[9];
+  const lead=slide.querySelector('#anatomy-step');
+  const texts=[
+    'The <b>workflow</b> is the file: it owns the triggers (<span class="mono">on:</span>), permissions, and a name.',
+    'A workflow contains <b>jobs</b>. Each job declares <span class="mono">runs-on</span> — which machine it wants. Jobs run in <b>parallel</b> by default.',
+    'A job is a list of <b>steps</b>, run in order. Two flavours: <b><span class="mono">uses:</span></b> calls a reusable <b>action</b> from the marketplace; <b><span class="mono">run:</span></b> executes shell — the exact commands you ran locally.'
+  ];
+  controllers.anatomy={max:2,render(s){ revealUpTo(slide,s); lead.innerHTML=texts[s]; }};
+})();
+
+/* ---------- slide 12 (index 11): runner model ---------- */
+(function(){
+  const slide=slides[11];
+  const lead=slide.querySelector('#runner-step');
+  const texts=[
+    'It starts with an <b>event</b> — a push to a PR branch.',
+    'GitHub provisions <b>one fresh, empty VM per job</b>. lint and validate start in parallel, on separate machines, sharing nothing.',
+    'Inside each VM the <b>steps run sequentially</b> — which is why <span class="mono">checkout</span> is step one: the VM starts <b>empty</b>, without even your code.',
+    'Job ends → <b>VM destroyed</b>. No state survives between jobs or runs — except what you explicitly pass via <b>artifacts</b> or <b>caching</b>. Remember this model; it explains almost every CI surprise.'
+  ];
+  controllers.runner={max:3,render(s){ revealUpTo(slide,s); lead.innerHTML=texts[s]; }};
+})();
+
+/* ============ wire controllers to their slides + reset on entry ============ */
+const ctrlBySlide={6:'binding',9:'anatomy',11:'runner'};
+const bound={};
+for(const idx in ctrlBySlide){const name=ctrlBySlide[idx];bound[idx]=bindControls(slides[idx],controllers[name]);}
+// reset a slide's animation when you scroll onto it
+let lastIdx=-1;
+function onView(){const i=curIndex();if(i!==lastIdx){lastIdx=i;if(bound[i])bound[i].reset();}}
+deck.addEventListener('scroll',()=>requestAnimationFrame(onView));
+onView();
+</script>
+</body>
+</html>
