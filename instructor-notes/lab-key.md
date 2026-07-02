@@ -221,6 +221,9 @@ workflow, dig in — they probably copy-pasted without understanding the privile
   `continue-on-error: true` overrides.
 - *"Required-check implications?"* — The *people* part is harder than the tech. Who maintains
   CI? Who fixes it when it's flaky?
+- *"Why pin pip by version but actions by tag?"* — A moved tag is a supply-chain vector;
+  SHA-pinning plus Dependabot is the hardened answer. Expect this to land hardest with people
+  who deploy inside customer networks — connect it forward to the Part 3 runner discussion.
 
 ### Debugging tips
 

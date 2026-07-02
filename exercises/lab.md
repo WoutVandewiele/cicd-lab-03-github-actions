@@ -300,6 +300,10 @@ Fix and re-push.
 - **Matrix `ign-lint` over individual views** so each view surfaces as its own check — a
   one-entry matrix today, but the pattern that scales as the HMI grows. (For now the single
   globbed step is plenty; the matrix is about isolating *which* view broke, not speed.)
+- **Cancel superseded runs.** Add a workflow-level `concurrency:` group
+  (`group: ${{ github.workflow }}-${{ github.ref }}`, `cancel-in-progress: true`) so a
+  force-push doesn't leave a stale run burning minutes — the `concurrency` box from the
+  mental-model diagram, in practice.
 - **Read, don't implement:** the difference between `on: pull_request` and
   `on: pull_request_target`. The latter runs the base-branch workflow *with secrets*
   against the PR's code — a well-known privilege-escalation footgun. See the
@@ -310,6 +314,10 @@ Fix and re-push.
 - Where does the workflow actually run? (An ephemeral runner spun up per job.)
 - What happens when a step fails midway? A whole job? (`continue-on-error`, `needs:`.)
 - Required checks are a contract with the *team*, not just a setting — who decides what's blocking?
+- We pin pip packages to an exact version but actions to a mutable tag (`@v4`). What's the
+  difference in risk? (A tag can be moved by the action's owner; supply-chain-sensitive repos
+  pin actions to a full commit SHA and let Dependabot bump them. This matters more once a
+  self-hosted runner sits inside a plant network — Part 3.)
 
 ---
 
