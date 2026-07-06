@@ -8,21 +8,21 @@ Reference reading for Part 1 (linters). The point isn't to use every linter; the
 |---|---|---|---|
 | **yamllint** | YAML syntax + style issues (`docker-compose.yml`, workflows, `.yamllint.yml`) | ms | local + CI |
 | **actionlint** | GitHub Actions workflow correctness (syntax + expression typing) | ms | local + CI |
-| **shellcheck** | Bash scripting bugs in `ops/*.sh` (the canonical ones, and many subtle ones) | ms | local + CI |
+| **shellcheck** | Bash scripting bugs in `scripts/*.sh` (the canonical ones, and many subtle ones) | ms | local + CI |
 | **ign-lint** | Ignition-native static analysis of Perspective `view.json` files and embedded scripts | seconds | local + CI |
 
 Plus two validators that aren't really linters:
 
 | Tool | What it catches |
 |---|---|
-| **`ops/validate.sh`** | Gateway-free project validator: every `*.json` under `projects/` is valid JSON, every `code.py` parses as Python 3. Exits 0/1 — the green/red signal for your PR. |
+| **`scripts/validate.sh`** | Gateway-free project validator: every `*.json` under `projects/` is valid JSON, every `code.py` parses as Python 3. Exits 0/1 — the green/red signal for your PR. |
 | **`docker compose config -q`** | Compose schema validation. Catches "service not defined", port-string typos, malformed environment maps. |
 
 ## A mental model
 
 Linters fall into three groups:
 
-**1. Syntax linters.** They verify the file *parses correctly* under the tool's grammar. `yamllint`, `docker compose config`, `actionlint`, and `ops/validate.sh` (JSON + Python parse-checks). Cheap, fast, hard to argue with.
+**1. Syntax linters.** They verify the file *parses correctly* under the tool's grammar. `yamllint`, `docker compose config`, `actionlint`, and `scripts/validate.sh` (JSON + Python parse-checks). Cheap, fast, hard to argue with.
 
 **2. Best-practice linters.** They verify the file follows known-good *patterns*. `shellcheck` flagging an unquoted `$VAR`, or `ign-lint` flagging a Perspective component reached via brittle `.getParent().getChild(...)` traversal, isn't a syntax error — it's a "this will work today but break the moment someone renames or reorders something" warning. These are the most valuable category; they encode operational wisdom.
 
@@ -61,9 +61,9 @@ It's configured by a repo-root `rule_config.json`, which is tuned so this lab's 
 
 This is the answer to the question the old version of this doc couldn't answer: yes, there *is* a public Ignition validator for Perspective views, and it runs gateway-free in CI.
 
-## ops/validate.sh — the gateway-free project validator
+## scripts/validate.sh — the gateway-free project validator
 
-`ign-lint` covers Perspective views deeply; `ops/validate.sh` is the broad, dependency-light backstop. It walks `projects/` and checks two things:
+`ign-lint` covers Perspective views deeply; `scripts/validate.sh` is the broad, dependency-light backstop. It walks `projects/` and checks two things:
 
 1. every `*.json` resource is valid JSON, and
 2. every `code.py` parses as Python 3.

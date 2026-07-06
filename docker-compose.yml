@@ -11,7 +11,7 @@
 #
 # Run it:
 #   cp .env.example .env
-#   ops/setup.sh              # or:  docker compose up -d
+#   scripts/setup.sh              # or:  docker compose up -d
 # Then:
 #   open http://localhost:8088   (log in with the .env credentials)
 

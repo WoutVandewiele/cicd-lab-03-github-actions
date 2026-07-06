@@ -12,7 +12,7 @@ Covers all three parts of the workshop: linters, GitHub Actions, self-hosted run
 ### The seeded broken state
 
 The shipped `main` is **clean** — no planted issues, and `lab-project` passes ign-lint with
-**zero** findings. The broken state is produced by **`ops/seed.sh`**, which plants the issues
+**zero** findings. The broken state is produced by **`scripts/seed.sh`**, which plants the issues
 below into the working tree (no git tags, no branches — just run the script). Participants
 reset with `git restore . && rm -f .github/workflows/example.yml`.
 
@@ -29,7 +29,7 @@ spaces to the `container_name: lab03-ignition` line. yamllint flags `trailing-sp
 that's deliberate, and the subject of the config sub-task below.)
 **Fix:** strip the trailing whitespace.
 
-**2. `ops/scan.sh` — shellcheck SC2086 (unquoted variable).** `seed.sh` unquotes the scan
+**2. `scripts/scan.sh` — shellcheck SC2086 (unquoted variable).** `seed.sh` unquotes the scan
 URL: `"$URL/data/api/v1/scan/projects"` → `$URL/data/api/v1/scan/projects`. shellcheck flags
 `SC2086` ("Double quote to prevent globbing and word splitting").
 **Fix:** re-quote it — `"$URL/data/api/v1/scan/projects"`.
@@ -86,9 +86,9 @@ renames the **Power** KPI tile to `power_tile`. Components must be PascalCase (s
 real-world ign-lint finding — a quick rename in the Designer that ignores the team
 convention, invisible until someone greps for the old name.
 
-**7. `project.json` — `ops/validate.sh` (malformed JSON).** `seed.sh` leaves a **trailing
+**7. `project.json` — `scripts/validate.sh` (malformed JSON).** `seed.sh` leaves a **trailing
 comma** after the last property in `project.json` (`"parent": ""` → `"parent": "",`) — exactly
-the slip a hand-edit of a tracked resource produces. `ops/validate.sh` runs `json.load` over
+the slip a hand-edit of a tracked resource produces. `scripts/validate.sh` runs `json.load` over
 every `*.json` under `projects/`, so it fails to parse and the script exits 1 (the red PR
 signal). (`validate.sh` also parses every `code.py` as Python 3, so a genuine script syntax
 error fails it the same way.)
@@ -103,15 +103,15 @@ readability more than it helps.
 
 ### Clean end state
 
-After Part 1: trailing whitespace stripped; `ops/scan.sh` variable re-quoted; `example.yml`
+After Part 1: trailing whitespace stripped; `scripts/scan.sh` variable re-quoted; `example.yml`
 fixed or deleted; the Discharge binding restored to its `runScript(...)` data source, the
 Clock restored to `now(1000)`, and the Power tile renamed back to `Power`; the trailing
-comma removed from `project.json`; the `.yamllint.yml` comment extended. Every linter silent and `ops/validate.sh` exits 0.
+comma removed from `project.json`; the `.yamllint.yml` comment extended. Every linter silent and `scripts/validate.sh` exits 0.
 
 ### Grading
 
 - **All linters silent.** `yamllint`, `shellcheck`, `actionlint`, `ign-lint` produce zero
-  output and `ops/validate.sh` exits 0 on the final state.
+  output and `scripts/validate.sh` exits 0 on the final state.
 - **Justified config changes.** If they disabled a `yamllint`/`ign-lint` rule, the commit
   message or config comment should explain why.
 - **No "fixed by deleting it" cheats.** Deleting the Clock, the Discharge binding, or the
@@ -151,16 +151,16 @@ same jobs, same step ordering. Cosmetic differences (step names, comment density
 ```yaml
 on:
   pull_request:
-    paths: ["projects/**", "ops/**", "docker-compose.yml", ".github/workflows/**", ".yamllint.yml", "rule_config.json"]
+    paths: ["projects/**", "scripts/**", "docker-compose.yml", ".github/workflows/**", ".yamllint.yml", "rule_config.json"]
   push:
     branches: [main]
 permissions:
   contents: read
 jobs:
-  lint:       # yamllint + actionlint + shellcheck ops/*.sh + ign-lint + docker compose config
+  lint:       # yamllint + actionlint + shellcheck scripts/*.sh + ign-lint + docker compose config
     runs-on: ubuntu-latest
     timeout-minutes: 10   # installs tools — needs more headroom than validate
-  validate:   # ops/validate.sh — every project *.json valid, every code.py parses
+  validate:   # scripts/validate.sh — every project *.json valid, every code.py parses
     runs-on: ubuntu-latest
     timeout-minutes: 5
 ```
@@ -178,11 +178,11 @@ from `bw-design-group/ignition-lint`) is the Ignition-native linter for Perspect
 ### Must-haves
 
 - **`permissions: contents: read`** at the workflow level. Missing → `issue:` comment.
-- **`paths:` filter** on `pull_request` covering `projects/**`, `ops/**`, and `rule_config.json`.
+- **`paths:` filter** on `pull_request` covering `projects/**`, `scripts/**`, and `rule_config.json`.
   A docs-only PR must be **skipped**. If their docs PR runs the full workflow, the filter's wrong.
   (After step 4 that same skipped PR will hang on "Expected — waiting for status" — that's the
   trap callout working as intended, not a bug in their workflow. The no-op-twin stretch resolves it.)
-- **`ign-lint` step** in `lint` and a **`validate` job** running `ops/validate.sh`.
+- **`ign-lint` step** in `lint` and a **`validate` job** running `scripts/validate.sh`.
 - **CI badge** in `README.md` (often missed; `nitpick:` if absent).
 - **Required check** on `main` — both `lint` and `validate`.
 

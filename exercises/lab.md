@@ -18,7 +18,7 @@ automated, file-based deployment is the subject of Labs 04–05. The goal here i
 
 ## What you'll do
 
-- **Part 1 — Linters as your safety net:** yamllint, shellcheck, actionlint, **ign-lint**, `ops/validate.sh`
+- **Part 1 — Linters as your safety net:** yamllint, shellcheck, actionlint, **ign-lint**, `scripts/validate.sh`
 - **Part 2 — GitHub Actions:** build `ci.yml`, path filters, required check
 - **Part 3 — Self-hosted runners:** a look ahead (short demo) — hands-on comes in Labs 04–05
 
@@ -29,7 +29,7 @@ the gateway boots:
 
 ```bash
 cp .env.example .env
-ops/setup.sh        # boots one Ignition gateway, waits for RUNNING, prints the URL + login
+scripts/setup.sh        # boots one Ignition gateway, waits for RUNNING, prints the URL + login
 # open http://localhost:8088  → log in with the .env credentials
 ```
 
@@ -49,12 +49,15 @@ pip install yamllint==1.35.1 ign-lint==0.6.1     # ign-lint needs Python 3.10+
 > minimal Debian/Ubuntu box, install the venv module first: `sudo apt install
 > python3-venv`. (Skip `brew install yamllint` — the pinned pip version is the one CI uses.)
 
-> **About `ign-lint`:** it's the one Ignition-specific tool here — a young, pre-1.0 linter
+> **About `ign-lint`:** it's the one Ignition-specific tool here, a young pre-1.0 linter
 > (v0.6.1) from [BW Design Group](https://github.com/bw-design-group)
-> ([ignition-lint repo](https://github.com/bw-design-group/ignition-lint)). It's the best
-> Ignition-native linter going today, which is why we use it; pin the version and treat it as
-> a great example of the *pattern* — an Ignition-aware linter as a required CI check — rather
-> than a permanent dependency.
+> ([ignition-lint repo](https://github.com/bw-design-group/ignition-lint)). Worth knowing the
+> history: the project started as [`etknorr/ignition-lint`](https://github.com/etknorr/ignition-lint),
+> which is now **archived read-only** (June 2026); active development moved to the BW Design Group
+> fork we pin here, and it carries a richer rule set. That handoff is itself the lesson: Ignition-native
+> CI tooling is still young, so you pin a version, watch where the maintained line lives, and treat
+> the tool as a great example of the *pattern* (an Ignition-aware linter as a required CI check)
+> rather than a permanent dependency.
 
 ### Your own repo (needed for Part 2)
 
@@ -80,7 +83,7 @@ and [`docs/self-hosted-runners.md`](../docs/self-hosted-runners.md).
 
 ## Part 1 — Linters as your safety net
 
-**Goal:** run yamllint, shellcheck, actionlint, **ign-lint**, and `ops/validate.sh`
+**Goal:** run yamllint, shellcheck, actionlint, **ign-lint**, and `scripts/validate.sh`
 against a real Ignition project; read each tool's output; decide whether to fix,
 configure away, or ignore each finding; and tune `.yamllint.yml` to fit the project.
 
@@ -90,7 +93,7 @@ run them all — it's to know which one would have caught yesterday's regression
 ### Seed the broken state
 
 ```bash
-ops/seed.sh
+scripts/seed.sh
 ```
 
 This plants a handful of issues into your working tree — at least one for every tool,
@@ -108,17 +111,24 @@ git restore . && rm -f .github/workflows/example.yml
 The instructor live-demos on the seeded state. For each tool: run it, read the output,
 fix one finding.
 
-1. `yamllint -c .yamllint.yml docker-compose.yml` — YAML syntax + style (finds trailing whitespace).
-2. `ops/validate.sh` — the gateway-free green/red signal: every `*.json` under `projects/`
-   is valid JSON, every `code.py` parses as Python 3. Exit 0 = green, 1 = red. The same
-   check the PR uses.
-3. `ign-lint --config rule_config.json --files "projects/**/view.json"` — **the flagship
+> **These are separate commands, not one runner.** There is no single "lint everything"
+> button in this lab. `scripts/validate.sh` is its own small script (item 2); the four
+> linters below it are each their own tool you install and run separately. `validate.sh`
+> is deliberately the *cheapest, broadest* check (does every file parse?), so it runs even
+> with none of the linters installed. The linters go *deeper* on narrower things.
+
+1. `yamllint -c .yamllint.yml docker-compose.yml`: YAML syntax + style (finds trailing whitespace).
+2. `scripts/validate.sh`: the gateway-free green/red signal, and **not a linter**. It only checks
+   that every `*.json` under `projects/` is valid JSON and every `code.py` parses as Python 3.
+   Exit 0 = green, 1 = red. The same check the PR uses. It does **not** run yamllint/shellcheck/
+   actionlint/ign-lint for you; those are the separate commands in this list.
+3. `ign-lint --config rule_config.json --files "projects/**/view.json"`: **the flagship
    tool of this part.** Ignition-native static analysis: it parses the Perspective
    `view.json`, walks the component tree, and checks naming conventions, binding poll
-   rates, brittle references, and the Python embedded in views — all without a running
+   rates, brittle references, and the Python embedded in views, all without a running
    gateway.
-4. `actionlint` — GitHub Actions workflow syntax + expression typing (run it on the seeded `example.yml`).
-5. `shellcheck ops/*.sh` — catches almost every shell scripting bug ever made.
+4. `actionlint`: GitHub Actions workflow syntax + expression typing (run it on the seeded `example.yml`).
+5. `shellcheck scripts/*.sh`: catches almost every shell scripting bug ever made.
 
 Spend the most time on **ign-lint** — it's the one that's genuinely Ignition-aware, and
 the one most people here have never seen. Open `rule_config.json` and walk the rules:
@@ -126,20 +136,20 @@ the one most people here have never seen. Open `rule_config.json` and walk the r
 kebab-case, custom methods → snake_case), `PollingIntervalRule` (a floor on binding poll
 rates — 1000 ms here), `BadComponentReferenceRule` (flags `.getSibling()` / `.getParent()`
 traversal), `PylintScriptRule`, and the rest. The clean `lab-project` passes ign-lint with
-**zero** findings — every finding you see is something `ops/seed.sh` broke on purpose.
+**zero** findings — every finding you see is something `scripts/seed.sh` broke on purpose.
 
 ### You do
 
 Fix the remaining planted issues, then make the config your own.
 
-1. Run each of `yamllint`, `shellcheck`, `actionlint`, `ign-lint`, and `ops/validate.sh`,
+1. Run each of `yamllint`, `shellcheck`, `actionlint`, `ign-lint`, and `scripts/validate.sh`,
    and write down each finding — make a list.
 2. Fix every finding. For each, record: *what the tool flagged*, *why your fix is correct*,
    and *what class of production bug it would catch*.
-3. Re-run every linter until each is silent and `ops/validate.sh` exits 0.
+3. Re-run every linter until each is silent and `scripts/validate.sh` exits 0.
 4. Open `.yamllint.yml`. We disabled `line-length` for the project — **extend the comment**
    explaining *why* (hint: long compose environment lines).
-5. Commit. Your end state should be a clean tree: every linter silent, `ops/validate.sh`
+5. Commit. Your end state should be a clean tree: every linter silent, `scripts/validate.sh`
    exits 0.
 
 > Stuck on a finding? [`instructor-notes/lab-key.md`](../instructor-notes/lab-key.md) has the
@@ -164,9 +174,14 @@ whole thing a *required check* no one can merge past.
 
 Start from a clean tree (Part 1 fixes applied, `.yamllint.yml` in place).
 
-### We-do
-
-The mental model:
+> **The one idea in this Part: a validator is already a pipeline.** In Part 1 you ran
+> `scripts/validate.sh` and the linters *by hand* at a terminal. That is a pipeline: an event
+> (you typing) triggers steps (the commands) that pass or fail (the exit code). All Part 2 does
+> is change the trigger from "you remembering" to "a pull request", and move the steps into
+> `ci.yml`. Same steps, same pass/fail, different trigger. When you build the workflow below,
+> notice you're not writing new *checks*, you're just wrapping the ones you already ran. (And
+> this afternoon in Lab 04, a *deploy* is the same shape again: trigger, steps, pass/fail, where
+> the steps ship files to a gateway.)
 
 ```
 workflow  ──contains──▶  jobs  ──contains──▶  steps  ──run──▶  actions or shell commands
@@ -190,7 +205,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
-      - run: ops/validate.sh
+      - run: scripts/validate.sh
 ```
 
 Open a PR, watch it run, read the logs together — each step is its own collapsible block.
@@ -209,7 +224,7 @@ Then add a second job that runs the Part 1 linters, including `ign-lint`:
       - run: yamllint -c .yamllint.yml .
       - uses: raven-actions/actionlint@v2
       - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends shellcheck
-      - run: shellcheck ops/*.sh
+      - run: shellcheck scripts/*.sh
       - run: ign-lint --config rule_config.json --files "projects/**/view.json"
 ```
 
@@ -238,7 +253,7 @@ on:
   pull_request:
     paths:
       - "projects/**"
-      - "ops/**"
+      - "scripts/**"
       - "docker-compose.yml"
       - ".github/workflows/**"
       - ".yamllint.yml"
@@ -269,11 +284,25 @@ typos, malformed environment maps.
 fork, `cicd-lab-03` if you followed Option B. A wrong repo name gives a silently broken
 badge, not an error.)
 
-**4 — Required check.** In repo settings, configure branch protection on `main`: require a
-PR before merging, and require status checks — select **`lint`** and **`validate`**. Now
-introduce a failure — run `ops/seed.sh` to plant the broken state (or just set the Clock's
-poll to `now(250)` by hand) — commit it, and open a PR. Confirm GitHub blocks the merge.
-Fix and re-push.
+**4 — Protect `main`.** In repo settings, add a branch protection rule for `main` with four
+things enabled — and grant yourself no bypass, or the rules won't apply to you as the
+repo admin:
+
+- **Require a pull request before merging** — blocks direct commits
+- **Require status checks to pass** — select **`lint`** and **`validate`**
+- **Block force pushes** — no rewriting history
+- **Restrict deletions** — `main` can't be deleted
+
+Now prove the wall exists, from both sides:
+
+1. **The forbidden route.** Commit straight to `main`
+   (`git commit --allow-empty -m "test: direct to main"`) and push. GitHub rejects the
+   push — direct commits to `main` are dead.
+2. **The proper route.** Make a change on a branch, open a PR, wait for `lint` and
+   `validate` to go green, and merge. The merge button is now the only door in.
+3. **Break it on purpose.** Run `scripts/seed.sh` to plant the broken state (or just set the
+   Clock's poll to `now(250)` by hand), commit on a branch, and open a PR. Confirm GitHub
+   blocks the merge. Fix and re-push.
 
 > **The trap you just set.** Required checks and `paths:` filters interact badly. Your
 > docs-only PR from step 1 was *skipped* — but a required check that never reports
@@ -378,7 +407,7 @@ it" beats "maybe.")
 
 You built a CI safety net for an Ignition project, end to end:
 
-- **Local linters** — yamllint, shellcheck, actionlint, **ign-lint**, and `ops/validate.sh`
+- **Local linters** — yamllint, shellcheck, actionlint, **ign-lint**, and `scripts/validate.sh`
   — each catching a class of bug before it ships.
 - **A GitHub Actions workflow** that runs them on every PR, with least-privilege permissions,
   path filters, and a status badge.

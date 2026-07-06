@@ -6,7 +6,7 @@ on:
   pull_request:
     paths:
       - "projects/**"
-      - "ops/**"
+      - "scripts/**"
       - "docker-compose.yml"
       - ".github/workflows/**"
       - ".yamllint.yml"
@@ -49,7 +49,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends shellcheck
-          shellcheck ops/*.sh
+          shellcheck scripts/*.sh
 
       - name: ignition-lint (Perspective views)
         run: ign-lint --config rule_config.json --files "projects/**/view.json"
@@ -66,4 +66,4 @@ jobs:
       - name: Validate project files
         # Gateway-free green/red signal: every project *.json is valid JSON and
         # every code.py parses as Python 3. The same check you run locally.
-        run: ops/validate.sh
+        run: scripts/validate.sh

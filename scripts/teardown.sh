@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Stop the Lab 03 gateway.
-#   ops/teardown.sh             # stop containers, keep the gateway's data volume
-#   ops/teardown.sh --volumes   # stop AND wipe the gateway's data volume (fresh start)
+#   scripts/teardown.sh             # stop containers, keep the gateway's data volume
+#   scripts/teardown.sh --volumes   # stop AND wipe the gateway's data volume (fresh start)
 
 set -euo pipefail
 

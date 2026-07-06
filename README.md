@@ -32,7 +32,7 @@ is the subject of [Lab 04](https://github.com/mustry-academy/cicd-lab-04-ignitio
 gh repo clone mustry-academy/cicd-lab-03-github-actions
 cd cicd-lab-03-github-actions
 cp .env.example .env
-ops/setup.sh        # boots one Ignition gateway, waits for RUNNING, prints the URL + login
+scripts/setup.sh        # boots one Ignition gateway, waits for RUNNING, prints the URL + login
 # open http://localhost:8088  → log in with the .env credentials
 ```
 
@@ -40,7 +40,7 @@ Before opening any PR, run the same checks CI runs — both are gateway-free and
 seconds:
 
 ```bash
-ops/validate.sh                                              # every project file: valid JSON / parseable Python
+scripts/validate.sh                                          # every project file: valid JSON / parseable Python
 python3 -m venv .venv && source .venv/bin/activate           # bare pip fails on Homebrew/Ubuntu-24.04 Python (PEP 668)
 pip install ign-lint==0.6.1
 ign-lint --config rule_config.json --files "projects/**/view.json"   # Ignition-native linting of the Perspective views
@@ -58,8 +58,8 @@ yamllint -c .yamllint.yml .
 Stop the gateway when you're done:
 
 ```bash
-ops/teardown.sh             # stop (keeps the gateway's data volume)
-ops/teardown.sh --volumes   # stop and wipe gateway state for a fresh start
+scripts/teardown.sh             # stop (keeps the gateway's data volume)
+scripts/teardown.sh --volumes   # stop and wipe gateway state for a fresh start
 ```
 
 ## Lab structure
@@ -72,7 +72,7 @@ The whole lab is one continuous workshop in [`exercises/lab.md`](./exercises/lab
 | 2 | GitHub Actions: workflows, jobs, required checks |
 | 3 | Self-hosted runners — a look ahead (short demo) |
 
-Part 1 starts from a deliberately-broken state seeded by [`ops/seed.sh`](./ops/seed.sh); the
+Part 1 starts from a deliberately-broken state seeded by [`scripts/seed.sh`](./scripts/seed.sh); the
 answer key is in [`instructor-notes/lab-key.md`](./instructor-notes/lab-key.md).
 
 ## Repo layout
@@ -90,7 +90,7 @@ cicd-lab-03-github-actions/
 │   ├── workflows/
 │   │   └── ci.yml                     ← the workflow we build in Part 2
 │   └── pull_request_template.md
-├── ops/
+├── scripts/
 │   ├── setup.sh                       ← boot the gateway and wait for RUNNING
 │   ├── scan.sh                        ← push project-file edits to the running gateway
 │   ├── teardown.sh                    ← stop the gateway (--volumes to wipe state)
@@ -130,7 +130,7 @@ volumes:
 
 > The gateway regenerates a `.resources/` blob store and other operational files inside `projects/` as it runs. Those are gateway-owned churn and are gitignored — if you ever see them in `git status`, your ignore rules are off.
 
-> **CI is built from scratch here.** Lab 02 deliberately shipped no CI — `ops/validate.sh` was something *you* remembered to run. This lab adds a `.github/workflows/ci.yml` that you build through the workshop, turning that validation (plus `ign-lint`) into a check every PR must pass. We do **not** call any reusable workflows — you see what's inside before you call it.
+> **CI is built from scratch here.** Lab 02 deliberately shipped no CI — `scripts/validate.sh` was something *you* remembered to run. This lab adds a `.github/workflows/ci.yml` that you build through the workshop, turning that validation (plus `ign-lint`) into a check every PR must pass. We do **not** call any reusable workflows — you see what's inside before you call it.
 
 ## Licence
 

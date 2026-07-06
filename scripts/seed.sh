@@ -2,7 +2,7 @@
 # Seed Part 1's deliberately-broken state into the working tree.
 #
 # Run this once at the start of Part 1, then hunt the planted issues with the
-# linters (yamllint, shellcheck, actionlint, ign-lint, ops/validate.sh). Every
+# linters (yamllint, shellcheck, actionlint, ign-lint, scripts/validate.sh). Every
 # planted issue is a mistake a real Ignition project picks up — a brittle binding,
 # a runaway poll rate, a hand-edited resource with broken JSON, and so on.
 #
@@ -30,8 +30,8 @@ s = s.replace("    container_name: lab03-ignition\n",
               "    container_name: lab03-ignition   \n", 1)
 p.write_text(s)
 
-# 2. shellcheck SC2086 — unquoted variable in ops/scan.sh
-p = pathlib.Path("ops/scan.sh")
+# 2. shellcheck SC2086 — unquoted variable in scripts/scan.sh
+p = pathlib.Path("scripts/scan.sh")
 s = p.read_text()
 s = s.replace('"$URL/data/api/v1/scan/projects"',
               '$URL/data/api/v1/scan/projects', 1)
@@ -57,7 +57,7 @@ s = s.replace("now(1000)", "now(250)", 1)
 s = s.replace('"name": "Power"', '"name": "power_tile"', 1)
 view.write_text(s)
 
-# 7. ops/validate.sh — malformed JSON: a trailing comma left in project.json by a hand-edit
+# 7. scripts/validate.sh — malformed JSON: a trailing comma left in project.json by a hand-edit
 p = pathlib.Path("projects/lab-project/project.json")
 s = p.read_text()
 s = s.replace('"parent": ""', '"parent": "",', 1)   # trailing comma → invalid JSON
@@ -80,7 +80,7 @@ YML
 cat <<'EOF'
 Seeded issues into the working tree:
   1. docker-compose.yml              — yamllint    (trailing whitespace)
-  2. ops/scan.sh                     — shellcheck  (SC2086, unquoted variable)
+  2. scripts/scan.sh                     — shellcheck  (SC2086, unquoted variable)
   3. .github/workflows/example.yml   — actionlint  (deprecated actions/checkout@v2)
   4. overview/view.json (Discharge)  — ign-lint    (brittle + dangling component reference)
   5. overview/view.json (Clock)      — ign-lint    (poll faster than the 1000ms floor)

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lab 03 — Teaching: GitHub Actions &amp; validation as a safety net</title>
+<title>Lab 03 Teaching: GitHub Actions &amp; your first pipeline</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -151,7 +151,7 @@ body{
 .sev.err{color:var(--red);background:var(--red-soft)}
 .sev.warnp{color:var(--warn);background:var(--warn-soft)}
 
-/* generic reveal — elements fade/rise in when .show is added */
+/* generic reveal: elements fade/rise in when .show is added */
 .reveal{opacity:0;transform:translateY(10px);transition:opacity .5s ease,transform .5s ease}
 .reveal.show{opacity:1;transform:none}
 
@@ -253,22 +253,58 @@ body{
 <div class="deck" id="deck">
 
 <!-- 1 · COVER -->
-<!-- [VERIFY] Session times below follow the welcome package's "typical live day" (Teaching 09:00–10:00). Adjust if Day 2 differs. -->
+<!-- [VERIFY] Session times below follow the welcome package's "typical live day" (Teaching 09:00 to 10:00). Adjust if Day 2 differs. -->
 <section class="slide dark">
   <div class="topbar">
     <div class="on-dark brandrow">
       <img class="logo-img logo-lg" src="logos/OriginalLight.png" alt="Mustry Solutions">
     </div>
-    <div class="stage on-dark">Lab 03 · Day 2 · 09:00 – 10:00</div>
+    <div class="stage on-dark">Lab 03 · Day 2 · 09:00-10:00</div>
   </div>
 
   <div class="cover">
     <div class="eyebrow">Teaching · 60 min</div>
-    <div class="big">Validation as a <em>safety net</em> — automated.</div>
-    <div class="sub">Yesterday every check was you remembering to run it. Today we make the machine remember: linters that catch a broken Perspective binding before it ships, a GitHub Actions workflow that runs them on every PR, and a required check nobody can merge past. Plus: where CI actually <em style="color:#fff;font-style:normal">runs</em> — and what to do when it can't reach your gateway.</div>
+    <div class="big">Your first <em>pipeline</em>: checks that run themselves.</div>
+    <div class="sub">Yesterday every check was you remembering to run it. Today the machine remembers: a linter run <em style="color:#fff;font-style:normal">is</em> a pipeline, so we build one on GitHub Actions that fires on every PR, catches a broken Perspective binding before it ships, and becomes a required check nobody can merge past. Plus: where a pipeline actually <em style="color:#fff;font-style:normal">runs</em>, and what to do when it can't reach your gateway.</div>
   </div>
 
-  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>Lab 03 — GitHub Actions</span></div>
+  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>Lab 03 · GitHub Actions</span></div>
+</section>
+
+<!-- 1b · YESTERDAY, IN ONE SLIDE (Day 1 recap) -->
+<section class="slide">
+  <div class="topbar">
+    <div class="brandrow"><img class="logo-img" src="logos/OriginalDark.png" alt="Mustry Solutions"></div>
+    <div class="stage">Recap · Day 1</div>
+  </div>
+
+  <div class="body">
+    <div class="sechead">
+      <span class="num">00</span>
+      <div>
+        <div class="title">Yesterday, in one slide</div>
+        <div class="lead">Day 1 was about the <b>habits</b>: Git as a mental model, then that model applied to a real Ignition project. Everything today builds directly on it, so let's reset the board before we automate.</div>
+      </div>
+    </div>
+    <div class="split">
+      <div class="catcard">
+        <div class="pn">MORNING · LAB 01</div>
+        <h4>Git fundamentals</h4>
+        <p>The object model (commits, trees, blobs), branches as cheap pointers, and merges vs rebases. Not "commands to memorise" but <b>what Git actually stores</b>.</p>
+      </div>
+      <div class="catcard c2">
+        <div class="pn">AFTERNOON · LAB 02</div>
+        <h4>Branching &amp; PRs, on Ignition</h4>
+        <p>The same project you'll use today: a refrigeration-plant Perspective HMI plus two Jython libraries. You branched, opened <b>pull requests</b>, and reviewed each other's changes by hand.</p>
+      </div>
+    </div>
+    <div class="callout">
+      <div class="lab" style="color:var(--blue)">The thread into today</div>
+      <p>Lab 02 shipped <b>no CI</b>. Every quality gate was a human remembering to run <span class="inlinecode">scripts/validate.sh</span> before opening a PR. That worked with two of us and one project. It does not scale. Today we hand that job to a machine.</p>
+    </div>
+  </div>
+
+  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>Day 1 · Git &amp; collaboration → Day 2 · automation</span></div>
 </section>
 
 <!-- 2 · WHERE WE ARE -->
@@ -283,20 +319,19 @@ body{
       <span class="num">01</span>
       <div>
         <div class="title">From discipline to automation</div>
-        <div class="lead">Lab 02 deliberately shipped <b>no CI</b> — <span class="mono">ops/validate.sh</span> was something <b>you</b> remembered to run before opening a PR. Human discipline doesn't scale. Today that check becomes a machine's job.</div>
+        <div class="lead">Lab 02 deliberately shipped <b>no CI</b>: <span class="mono">scripts/validate.sh</span> was something <b>you</b> remembered to run before opening a PR. Human discipline doesn't scale. Today that check becomes a machine's job.</div>
       </div>
     </div>
     <div class="split">
       <div>
         <ul class="checks">
-          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Day 1 gave you the Git mindset</b> — the object model, branches, and PRs done right. The review process worked, but every quality gate was manual.</span></li>
-          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Same project as Lab 02</b> — a refrigeration-plant Perspective HMI plus two Jython script libraries. You're not learning new application code; you're building CI <b>around</b> code you know.</span></li>
-          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Today's goal in one sentence:</b> make "broken project files can't reach <span class="mono">main</span>" automatic.</span></li>
-          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Not today:</b> deploying <b>to</b> the gateway — that's Labs 04–05; today is the safety net, not the delivery truck. But the deployment environment itself is here: a compose-defined gateway running the exact files CI checks.</span></li>
+          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Day 1 gave you the Git mindset:</b> the object model, branches, and PRs done right. The review process worked, but every quality gate was manual.</span></li>
+          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>The day's goal in one sentence:</b> get a project change from a PR onto a running gateway, <b>automatically</b>. This morning builds the pipeline that guards it; <b>this afternoon we actually deploy</b>.</span></li>
+          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>This morning specifically:</b> the safety net, not yet the delivery truck. We stand up the deployment environment (a compose-defined gateway running the exact files CI checks) and make broken files unable to reach <span class="mono">main</span>. <b>Deploying onto it is Lab 04, right after lunch.</b></span></li>
         </ul>
       </div>
       <div class="catcard" style="align-self:stretch">
-        <div class="pn">THIS HOUR — THREE CHAPTERS</div>
+        <div class="pn">THIS HOUR · THREE CHAPTERS</div>
         <h4>1 · Validation &amp; linters</h4>
         <p>What a machine can check for you, and the one tool that actually understands Ignition.</p>
         <h4 style="margin-top:16px">2 · GitHub Actions</h4>
@@ -308,10 +343,10 @@ body{
     </div>
   </div>
 
-  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>Day 2 — Collaboration &amp; automation</span></div>
+  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>Day 2 · Collaboration &amp; automation</span></div>
 </section>
 
-<!-- 3 · DIVIDER — CH 1 -->
+<!-- 3 · DIVIDER · CH 1 -->
 <section class="slide dark">
   <div class="topbar">
     <div class="on-dark brandrow"><img class="logo-img" src="logos/OriginalLight.png" alt="Mustry Solutions"></div>
@@ -319,10 +354,10 @@ body{
   </div>
   <div class="divider">
     <div class="eyebrow">Chapter 1</div>
-    <div class="q">What can a <em>machine</em> check for you?</div>
-    <div class="sub2">Every linter is a cheap, fast check that catches one class of bug. The skill isn't running them all — it's knowing which one would have caught <span style="color:#fff">yesterday's regression</span>.</div>
+    <div class="q"><em>Linters</em>: what a machine checks before you do.</div>
+    <div class="sub2">A linter is a cheap, fast check that catches one class of bug automatically. The skill isn't running them all; it's knowing which linter would have caught <span style="color:#fff">yesterday's regression</span>.</div>
   </div>
-  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>syntax → best practice → style</span></div>
+  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>syntax → likely-bug → style</span></div>
 </section>
 
 <!-- 4 · THREE KINDS OF CHECK -->
@@ -337,7 +372,7 @@ body{
       <span class="num">02</span>
       <div>
         <div class="title">Three kinds of check</div>
-        <div class="lead">All "linting" is not the same. Sort every tool into one of three groups — it tells you how hard to enforce it.</div>
+        <div class="lead">All "linting" is not the same. Sort every tool into one of three groups; it tells you how hard to enforce it.</div>
       </div>
     </div>
     <div class="cat3">
@@ -345,24 +380,24 @@ body{
         <div class="pn">GROUP 1</div>
         <h4>Syntax</h4>
         <p><b>Does the file even parse?</b> Cheap, fast, hard to argue with. A trailing comma in <span class="inlinecode">project.json</span> means the gateway can't load your resource.</p>
-        <div class="ex">yamllint · docker compose config<br>actionlint · ops/validate.sh</div>
+        <div class="ex">yamllint · docker compose config<br>actionlint · scripts/validate.sh</div>
       </div>
       <div class="catcard c2">
         <div class="pn">GROUP 2</div>
-        <h4>Best practice</h4>
-        <p><b>Will this bite you later?</b> Not a syntax error — a "works today, breaks the moment someone renames something" warning. The most valuable group: it encodes operational wisdom.</p>
-        <div class="ex">shellcheck (unquoted $VAR)<br>ign-lint (brittle refs, runaway polls)</div>
+        <h4>Likely-bug checks</h4>
+        <p><b>The file parses, but this pattern is risky.</b> Group 1 only asks "is it valid?"; group 2 asks "is it <i>wise</i>?" The linter understands what the code <i>means</i> and flags patterns that work today but are fragile. Example: <span class="inlinecode">ign-lint</span> sees a binding pointing at a sibling by relative path and warns, because renaming that sibling silently breaks it. Nothing is malformed; it's a trap waiting to spring.</p>
+        <div class="ex">ign-lint: brittle sibling refs · poll rate faster than 1000ms<br>shellcheck: <span class="mono">rm $DIR/</span> unquoted, so a space in <span class="mono">$DIR</span> deletes the wrong thing</div>
       </div>
       <div class="catcard c3">
         <div class="pn">GROUP 3</div>
         <h4>Style</h4>
-        <p><b>Is it consistent?</b> Useful in a team — consistency reduces cognitive load — but the most fiddly. Tune or disable rules, <b>as long as the team agrees</b> and the config is checked in.</p>
+        <p><b>Is it consistent?</b> Useful in a team (consistency reduces cognitive load) but the most fiddly. Tune or disable rules, <b>as long as the team agrees</b> and the config is checked in.</p>
         <div class="ex">line-length · naming conventions<br>(PascalCase components…)</div>
       </div>
     </div>
     <div class="callout">
-      <div class="lab" style="color:var(--blue)">The rule of thumb</div>
-      <p>Enable <b>groups 1 and 2 everywhere</b>; treat group 3 as <b>opt-in</b>. And the config lives <b>in the repo</b> — <code>.yamllint.yml</code>, <code>rule_config.json</code> — so the team agreement is version-controlled and enforced, not tribal knowledge.</p>
+      <div class="lab" style="color:var(--blue)">Where teams actually are</div>
+      <p>Most projects already have <b>group 1</b> (syntax fails the build) and argue about <b>group 3</b> (style). The one that's usually <b>missing is group 2</b>: the checks that understand what the code means. For Ignition specifically, almost nobody has it, because a tool that can read a Perspective view barely existed until recently. That gap is the whole point of today: <span class="mono">ign-lint</span> is a group-2 tool, and wiring it in is the highest-value thing on this slide. Whatever you enable, the config lives <b>in the repo</b> so the team agreement is version-controlled, not tribal knowledge.</p>
     </div>
   </div>
 
@@ -380,26 +415,26 @@ body{
     <div class="sechead">
       <span class="num">03</span>
       <div>
-        <div class="title">The toolbelt — mapped to this repo</div>
-        <div class="lead">Six checks, each aimed at files we actually track. All of them are <b>gateway-free</b>: no Docker, no license, no gateway boot — which is exactly what makes them perfect for CI.</div>
+        <div class="title">The toolbelt, mapped to this repo</div>
+        <div class="lead">Six checks, each aimed at files we actually track. All of them are <b>gateway-free</b>: no Docker, no license, no gateway boot, which is exactly what makes them perfect for CI.</div>
       </div>
     </div>
     <div class="tools">
       <div class="thead"><span>Tool</span><span>Runs on</span><span>Catches</span></div>
-      <div class="trow"><code>yamllint</code><span class="tgt">docker-compose.yml · workflows · .yamllint.yml</span><span>YAML syntax + style — trailing spaces, <b>truthy</b> surprises (<span class="mono">on:</span>), indentation.</span></div>
-      <div class="trow"><code>shellcheck</code><span class="tgt">ops/*.sh</span><span>Nearly every shell bug ever made — the canonical <b>SC2086</b> unquoted <span class="mono">$VAR</span>.</span></div>
-      <div class="trow"><code>actionlint</code><span class="tgt">.github/workflows/*.yml</span><span>Actions workflow correctness — syntax, <b>expression typing</b>, stale runners &amp; actions.</span></div>
+      <div class="trow"><code>yamllint</code><span class="tgt">docker-compose.yml · workflows · .yamllint.yml</span><span>YAML syntax + style: trailing spaces, <b>truthy</b> surprises (<span class="mono">on:</span>), indentation.</span></div>
+      <div class="trow"><code>shellcheck</code><span class="tgt">scripts/*.sh</span><span>Nearly every shell bug ever made, like the canonical <b>SC2086</b> unquoted <span class="mono">$VAR</span>.</span></div>
+      <div class="trow"><code>actionlint</code><span class="tgt">.github/workflows/*.yml</span><span>Actions workflow correctness: syntax, <b>expression typing</b>, stale runners &amp; actions.</span></div>
       <div class="trow"><code>ign-lint</code><span class="tgt">projects/**/view.json</span><span><b>Ignition-native</b> static analysis: naming, poll rates, brittle references, embedded Python.</span></div>
-      <div class="trow"><code>ops/validate.sh</code><span class="tgt">every *.json + code.py under projects/</span><span>The <b>green/red PR signal</b>: valid JSON, parseable Python. Exit 0 = green, 1 = red.</span></div>
-      <div class="trow"><code>docker compose config -q</code><span class="tgt">docker-compose.yml</span><span>Compose <b>schema</b> — undefined services, port-string typos, malformed env maps.</span></div>
+      <div class="trow"><code>scripts/validate.sh</code><span class="tgt">every *.json + code.py under projects/</span><span>The <b>green/red PR signal</b>: valid JSON, parseable Python. Exit 0 = green, 1 = red.</span></div>
+      <div class="trow"><code>docker compose config -q</code><span class="tgt">docker-compose.yml</span><span>Compose <b>schema</b>: undefined services, port-string typos, malformed env maps.</span></div>
     </div>
     <div class="callout">
-      <div class="lab">Speed matters</div>
-      <p>Every one of these finishes in <b>milliseconds to seconds</b>. A check that's slower than your dev loop stops being a safety net and starts being a tax.</p>
+      <div class="lab">Where to get them</div>
+      <p><span class="mono">pip install yamllint ign-lint</span> · <span class="mono">brew install shellcheck actionlint</span> (or <span class="mono">apt</span> on Linux). The last two need <b>no install</b>: <span class="mono">validate.sh</span> ships in the repo, <span class="mono">docker compose</span> you already have. All finish in <b>milliseconds to seconds</b>, fast enough to run on every save.</p>
     </div>
   </div>
 
-  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>All six run locally and in CI — same commands</span></div>
+  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>Install: see exercises/lab.md § Setup · same commands run locally and in CI</span></div>
 </section>
 
 <!-- 6 · IGN-LINT DEEP DIVE -->
@@ -413,35 +448,35 @@ body{
     <div class="sechead">
       <span class="num">04</span>
       <div>
-        <div class="title"><span class="mono" style="font-size:34px">ign-lint</span> — the linter that understands Ignition</div>
-        <div class="lead">The other tools are generic. <span class="mono">ign-lint</span> parses Perspective <span class="mono">view.json</span>, walks the component tree, and checks the Python embedded in views — <b>without a running gateway</b>. Configured by <span class="mono">rule_config.json</span> in the repo root.</div>
+        <div class="title"><span class="mono" style="font-size:34px">ign-lint</span>: the linter that understands Ignition</div>
+        <div class="lead">The other tools are generic. <span class="mono">ign-lint</span> parses Perspective <span class="mono">view.json</span>, walks the component tree, and checks the Python embedded in views, all <b>without a running gateway</b>. Configured by <span class="mono">rule_config.json</span> in the repo root.</div>
       </div>
     </div>
     <div class="split">
       <div class="rules">
         <div class="rrow"><code>NamePatternRule</code><span>components → <b>PascalCase</b><span class="sev err">error</span> · properties → camelCase<span class="sev warnp">warn</span> · handlers → kebab-case<span class="sev warnp">warn</span> · methods → snake_case<span class="sev err">error</span></span></div>
-        <div class="rrow"><code>PollingIntervalRule</code><span>floor on binding poll rates — <b>1000&nbsp;ms</b> in this lab. <span class="mono">now(250)</span> is a finding.</span></div>
-        <div class="rrow"><code>BadComponentReferenceRule</code><span>flags brittle traversal — <span class="mono">.getSibling()</span>, <span class="mono">.getParent()</span>, relative paths<span class="sev err">error</span></span></div>
+        <div class="rrow"><code>PollingIntervalRule</code><span>floor on binding poll rates, <b>1000&nbsp;ms</b> in this lab. <span class="mono">now(250)</span> is a finding.</span></div>
+        <div class="rrow"><code>BadComponentReferenceRule</code><span>flags brittle traversal: <span class="mono">.getSibling()</span>, <span class="mono">.getParent()</span>, relative paths<span class="sev err">error</span></span></div>
         <div class="rrow"><code>ComponentReferenceValidationRule</code><span>do relative references <b>actually resolve</b>? Validates expressions, bindings, scripts.</span></div>
         <div class="rrow"><code>PylintScriptRule</code><span>runs pylint over the Python <b>inside views</b>, mapping categories to error/warning.</span></div>
         <div class="rrow"><code>UnusedCustomPropertiesRule</code><span>custom properties nothing reads.</span></div>
-        <div class="rrow"><code>ExcessiveContextDataRule</code><span>oversized context data — big arrays, deep nesting, too many data points.</span></div>
+        <div class="rrow"><code>ExcessiveContextDataRule</code><span>oversized context data: big arrays, deep nesting, too many data points.</span></div>
       </div>
       <div>
         <div class="code"><pre><span class="cm"># install (needs Python 3.10+)</span>
 pip install ign-lint==0.6.1
 
-<span class="cm"># run — same command locally and in CI</span>
+<span class="cm"># run: same command locally and in CI</span>
 ign-lint --config rule_config.json \
   --files <span class="cmd2">"projects/**/view.json"</span></pre></div>
         <div class="callout" style="margin-top:16px">
           <div class="lab">A note on maturity</div>
-          <p><b>Pre-1.0 (v0.6.1)</b>, from BW Design Group (<code>bw-design-group/ignition-lint</code>) — the best Ignition-native linter going today. <b>Pin the version</b>; the durable lesson is the <b>pattern</b> — an Ignition-aware linter as a required CI check — not the specific tool.</p>
+          <p><b>Pre-1.0 (v0.6.1)</b>, from BW Design Group (<code>bw-design-group/ignition-lint</code>): the best Ignition-native linter going today. It began as <code>etknorr/ignition-lint</code>, now <b>archived read-only</b>; the maintained line moved to this fork. That handoff <i>is</i> the lesson: the tooling is young, so <b>pin the version</b>, follow where the maintained project lives, and hold onto the <b>pattern</b>, an Ignition-aware linter as a required CI check, not the specific tool.</p>
         </div>
       </div>
     </div>
     <div class="refs">
-      <div class="ref"><b>config</b> rule_config.json — tuned so the clean lab-project passes with zero findings</div>
+      <div class="ref"><b>config</b> rule_config.json: tuned so the clean lab-project passes with zero findings</div>
       <div class="ref"><b>docs</b> bw-design-group.github.io/ignition-lint</div>
     </div>
   </div>
@@ -458,7 +493,7 @@ ign-lint --config rule_config.json \
 
   <div class="stage-wrap">
     <div class="vtitle">The bug the gateway won't tell you about</div>
-    <p class="lead" style="text-align:center;margin:6px auto 0;color:#c4cfde">The lab's Overview HMI — four KPI tiles and a clock. Watch what one rename does to it.</p>
+    <p class="lead" style="text-align:center;margin:6px auto 0;color:#c4cfde">The lab's Overview HMI: four KPI tiles and a clock. Watch what one rename does to it.</p>
 
     <div class="hmiwrap">
       <div class="hmi reveal" data-step="0">
@@ -484,17 +519,17 @@ ign-lint --config rule_config.json \
         <div class="reveal" data-step="3">
           <div class="findbox">
             <div class="fr">BadComponentReferenceRule · error</div>
-            <p><span class="mono">../../</span> traversal couples this binding to the view's <b style="color:#fff">structure</b> — reorganise the tree and it breaks.</p>
+            <p><span class="mono">../../</span> traversal couples this binding to the view's <b style="color:#fff">structure</b>: reorganise the tree and it breaks.</p>
           </div>
           <div class="findbox">
             <div class="fr">ComponentReferenceValidationRule · error</div>
-            <p><span class="mono">SuctionPressure</span> doesn't resolve — there is <b style="color:#fff">no such component</b> anymore.</p>
+            <p><span class="mono">SuctionPressure</span> doesn't resolve: there is <b style="color:#fff">no such component</b> anymore.</p>
           </div>
         </div>
         <div class="reveal" data-step="4">
           <div class="findbox">
             <div class="fr">PollingIntervalRule · error</div>
-            <p>The Clock now polls at <span class="mono">now(250)</span> — 4×/second, under the 1000&nbsp;ms floor. Multiply by every open session and you're hammering the gateway.</p>
+            <p>The Clock now polls at <span class="mono">now(250)</span>, 4×/second, under the 1000&nbsp;ms floor. Multiply by every open session and you're hammering the gateway.</p>
           </div>
         </div>
       </div>
@@ -519,25 +554,25 @@ ign-lint --config rule_config.json \
     <div class="sechead">
       <span class="num">05</span>
       <div>
-        <div class="title"><span class="mono" style="font-size:34px">ops/validate.sh</span> — the backstop, and the limits</div>
-        <div class="lead"><span class="mono">ign-lint</span> goes deep on views; <span class="mono">validate.sh</span> goes broad on everything. Nothing but <span class="mono">python3</span>, about a second, exit <b>0 or 1</b>.</div>
+        <div class="title"><span class="mono" style="font-size:34px">scripts/validate.sh</span>: a small json/python parser, and the limits</div>
+        <div class="lead"> It's one small script doing two parse checks (valid JSON, parseable Python); the linters are <b>separate commands</b>. This is the cheap catch-all that runs even with none of them installed.</div>
       </div>
     </div>
     <div class="cols2">
       <div>
-        <div class="code"><pre><span class="cm"># what it checks — the whole thing:</span>
+        <div class="code"><pre><span class="cm"># what it checks, the whole thing:</span>
 <span class="cm"># 1. every *.json under projects/ is valid JSON</span>
 <span class="cm"># 2. every code.py parses as Python 3</span>
-ops/validate.sh
+scripts/validate.sh
 <span class="ok">→ ✓ all project files valid   (exit 0)</span>
 
 <span class="cm"># after a hand-edit leaves a trailing comma…</span>
-ops/validate.sh
+scripts/validate.sh
 <span class="bad">→ ✗ invalid JSON: projects/lab-project/project.json
 → ✗ validation failed          (exit 1)</span></pre></div>
         <div class="callout" style="margin-top:16px">
           <div class="lab">Honest fine print</div>
-          <p>The gateway runs <b>Jython 2.7</b>; this is a fast <b>Python-3 parse check</b>, not a Jython validator. Write Python-3-parseable syntax and you're fine — the lab's scripts already are.</p>
+          <p>The gateway runs <b>Jython 2.7</b>; this is a fast <b>Python-3 parse check</b>, not a Jython validator. Write Python-3-parseable syntax and you're fine; the lab's scripts already are.</p>
         </div>
       </div>
       <div>
@@ -548,7 +583,7 @@ ops/validate.sh
         <div class="catcard c3" style="height:auto;margin-top:16px">
           <div class="pn">…AND HURTS WHEN</div>
           <p>· it flags <b>style as errors</b> and blocks PRs<br>· it's slower than the dev loop<br>· the config <b>drifts from reality</b> and nobody agrees with it anymore</p>
-          <div class="ex">the cure: tune the checked-in config — don't disable the linter</div>
+          <div class="ex">the cure: tune the checked-in config, don't disable the linter</div>
         </div>
       </div>
     </div>
@@ -557,7 +592,7 @@ ops/validate.sh
   <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>Exit code = the PR's green/red signal</span></div>
 </section>
 
-<!-- 9 · DIVIDER — CH 2 -->
+<!-- 9 · DIVIDER · CH 2 -->
 <section class="slide dark">
   <div class="topbar">
     <div class="on-dark brandrow"><img class="logo-img" src="logos/OriginalLight.png" alt="Mustry Solutions"></div>
@@ -566,9 +601,56 @@ ops/validate.sh
   <div class="divider">
     <div class="eyebrow">Chapter 2</div>
     <div class="q">Who runs the checks when <em>you</em> forget?</div>
-    <div class="sub2">Local linters still depend on you running them. GitHub Actions runs them on <span style="color:#fff">every pull request, every time</span> — and then tells GitHub whether the merge button should work.</div>
+    <div class="sub2">Local linters still depend on you running them. GitHub Actions runs them on <span style="color:#fff">every pull request, every time</span>, and then tells GitHub whether the merge button should work.</div>
   </div>
   <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>workflows → jobs → steps</span></div>
+</section>
+
+<!-- 9b · A VALIDATOR IS ALREADY A PIPELINE -->
+<section class="slide">
+  <div class="topbar">
+    <div class="brandrow"><img class="logo-img" src="logos/OriginalDark.png" alt="Mustry Solutions"></div>
+    <div class="stage">GitHub Actions · the big idea</div>
+  </div>
+
+  <div class="body">
+    <div class="sechead">
+      <span class="num">06</span>
+      <div>
+        <div class="title">A validator <em>is</em> a pipeline</div>
+        <div class="lead">The linter run you did by hand in Chapter 1 already <b>is</b> a pipeline: a trigger, then steps that pass or fail. GitHub Actions just <b>runs it for you</b> on every PR.</div>
+      </div>
+    </div>
+    <div class="split">
+      <div>
+        <div class="code"><pre><span class="cm"># Chapter 1: you, at a terminal</span>
+scripts/validate.sh
+ign-lint --config rule_config.json \
+  --files <span class="cmd2">"projects/**/view.json"</span>
+<span class="cm"># trigger = you typing · step = the command</span>
+<span class="cm"># pass/fail = the exit code</span>
+
+<span class="cm"># Chapter 2: the same thing, as a pipeline</span>
+on: pull_request        <span class="cm"># the trigger</span>
+  run: scripts/validate.sh   <span class="cm"># the step</span>
+  run: ign-lint ...          <span class="cm"># the step</span></pre></div>
+      </div>
+      <div>
+        <div class="catcard">
+          <div class="pn">SAME SHAPE, TWO SCALES</div>
+          <h4>Trigger → steps → pass/fail</h4>
+          <p>Run it by hand and the trigger is <b>you</b>. Put it in <span class="inlinecode">ci.yml</span> and the trigger is <b>a pull request</b>. The steps and the pass/fail are identical. That's the whole leap.</p>
+        </div>
+        <div class="catcard c2" style="margin-top:16px">
+          <div class="pn">WHY IT MATTERS TODAY</div>
+          <h4>Deploy is just a bigger pipeline</h4>
+          <p>Hold onto this shape. This afternoon's <b>deploy</b> (Lab 04) is the exact same trigger → steps → pass/fail, with "ship files to a gateway and scan" as the steps instead of "lint".</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>Day 2 · a validator is a pipeline · triggered by an event, not your memory</span></div>
 </section>
 
 <!-- 10 · ANATOMY (stepped, dark) -->
@@ -580,12 +662,12 @@ ops/validate.sh
 
   <div class="stage-wrap">
     <div class="vtitle">Workflow ⊃ jobs ⊃ steps</div>
-    <p class="lead" style="text-align:center;margin:6px auto 0;color:#c4cfde">One YAML file in <span class="mono" style="color:#dbe4f0">.github/workflows/</span> — this is the lab's real <span class="mono" style="color:#dbe4f0">ci.yml</span>, drawn as boxes.</p>
+    <p class="lead" style="text-align:center;margin:6px auto 0;color:#c4cfde">One YAML file in <span class="mono" style="color:#dbe4f0">.github/workflows/</span>: this is the lab's real <span class="mono" style="color:#dbe4f0">ci.yml</span>, drawn as boxes.</p>
 
     <div class="anat">
       <div class="wfbox reveal" data-step="0">
         <div class="wfl">
-          <span class="n">workflow — <span class="mono" style="font-weight:600">.github/workflows/ci.yml</span></span>
+          <span class="n">workflow · <span class="mono" style="font-weight:600">.github/workflows/ci.yml</span></span>
           <span class="m">on: pull_request + push · permissions: contents: read · name: CI</span>
         </div>
         <div class="jobrow">
@@ -600,7 +682,7 @@ ops/validate.sh
           <div class="jobbox reveal" data-step="1">
             <div class="jl"><span class="n">job: validate</span><span class="m">runs-on: ubuntu-latest</span></div>
             <div class="stp uses reveal" data-step="2"><span>actions/checkout@v4</span><span class="k">uses</span></div>
-            <div class="stp runs reveal" data-step="2"><span>ops/validate.sh</span><span class="k">run</span></div>
+            <div class="stp runs reveal" data-step="2"><span>scripts/validate.sh</span><span class="k">run</span></div>
           </div>
         </div>
       </div>
@@ -623,20 +705,20 @@ ops/validate.sh
 
   <div class="body">
     <div class="sechead">
-      <span class="num">06</span>
+      <span class="num">07</span>
       <div>
-        <div class="title">Triggers — the <span class="mono" style="font-size:34px">on:</span> block</div>
+        <div class="title">Triggers: the <span class="mono" style="font-size:34px">on:</span> block</div>
         <div class="lead">Events start workflows. This lab uses two, plus <b>path filters</b> so docs-only PRs don't waste a runner.</div>
       </div>
     </div>
     <div class="cols2">
       <div>
-        <div class="code"><pre><span class="cm"># the lab's ci.yml — real triggers</span>
+        <div class="code"><pre><span class="cm"># the lab's ci.yml: real triggers</span>
 on:
   pull_request:          <span class="cm"># every PR update</span>
     paths:               <span class="cm"># …that touches code we check</span>
       - <span class="cmd2">"projects/**"</span>
-      - <span class="cmd2">"ops/**"</span>
+      - <span class="cmd2">"scripts/**"</span>
       - <span class="cmd2">"docker-compose.yml"</span>
       - <span class="cmd2">".github/workflows/**"</span>
       - <span class="cmd2">".yamllint.yml"</span>
@@ -646,14 +728,14 @@ on:
       </div>
       <div>
         <ul class="checks">
-          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b><span class="mono">pull_request</span></b> — runs on open and on every push to the PR branch. The workhorse for checks.</span></li>
-          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b><span class="mono">push: branches: [main]</span></b> — the backstop: verifies main itself stays green after merges and direct pushes.</span></li>
-          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b><span class="mono">paths:</span></b> — a README-only PR doesn't spin up two VMs to lint files it never touched. The workflow is <b>skipped</b>, not passed — you'll verify the difference in the lab.</span></li>
-          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Others you'll meet:</b> <span class="mono">workflow_dispatch</span> (a manual Run button — the runner demo uses it), <span class="mono">schedule</span> (cron), <span class="mono">release</span>.</span></li>
+          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b><span class="mono">pull_request</span></b> runs on open and on every push to the PR branch. The workhorse for checks.</span></li>
+          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b><span class="mono">push: branches: [main]</span></b> is the backstop: it verifies main itself stays green after merges and direct pushes.</span></li>
+          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b><span class="mono">paths:</span></b> means a README-only PR doesn't spin up two VMs to lint files it never touched. The workflow is <b>skipped</b>, not passed, and you'll verify the difference in the lab.</span></li>
+          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Others you'll meet:</b> <span class="mono">workflow_dispatch</span> (a manual Run button, which the runner demo uses), <span class="mono">schedule</span> (cron), <span class="mono">release</span>.</span></li>
         </ul>
         <div class="callout" style="margin-top:16px">
           <div class="lab">Filter discipline</div>
-          <p>Too narrow (one file) and view changes sneak past. Too broad (<code>"**"</code>) and the filter is pointless. Cover the <b>directories the checks actually read</b> — including the configs like <code>rule_config.json</code>.</p>
+          <p>Too narrow (one file) and view changes sneak past. Too broad (<code>"**"</code>) and the filter is pointless. Cover the <b>directories the checks actually read</b>, including the configs like <code>rule_config.json</code>.</p>
         </div>
       </div>
     </div>
@@ -680,22 +762,23 @@ on:
       </div>
       <div class="vm reveal" data-step="1">
         <div class="vmh"><span class="n">job: lint</span><span class="tag">fresh VM · ubuntu-latest</span></div>
-        <div class="stp uses reveal" data-step="2"><span>checkout — clone <b>your repo</b> into the empty VM</span><span class="k">1</span></div>
+        <div class="stp uses reveal" data-step="2"><span>checkout: clone <b>your repo</b> into the empty VM</span><span class="k">1</span></div>
         <div class="stp uses reveal" data-step="2"><span>setup-python "3.12"</span><span class="k">2</span></div>
         <div class="stp runs reveal" data-step="2"><span>pip install … → yamllint → actionlint → shellcheck → ign-lint</span><span class="k">3…7</span></div>
         <div class="die reveal" data-step="3">job ends → VM destroyed. Nothing survives.</div>
       </div>
       <div class="vm reveal" data-step="1">
         <div class="vmh"><span class="n">job: validate</span><span class="tag">another fresh VM</span></div>
-        <div class="stp uses reveal" data-step="2"><span>checkout — its <b>own</b> clone; it saw nothing of lint's VM</span><span class="k">1</span></div>
-        <div class="stp runs reveal" data-step="2"><span>ops/validate.sh → exit 0 or 1 = the job's result</span><span class="k">2</span></div>
+        <div class="stp uses reveal" data-step="2"><span>checkout: its <b>own</b> clone; it saw nothing of lint's VM</span><span class="k">1</span></div>
+        <div class="stp runs reveal" data-step="2"><span>scripts/validate.sh → exit 0 or 1 = the job's result</span><span class="k">2</span></div>
         <div class="die reveal" data-step="3">job ends → VM destroyed. Nothing survives.</div>
       </div>
     </div>
+    <p style="text-align:center;font-size:13px;color:#8fa0b6;line-height:1.5;margin:0">None of this is CI-only: the same linters run on your laptop. <span class="mono">pip install yamllint ign-lint</span>; <span class="mono">brew</span>/<span class="mono">apt</span> install <span class="mono">shellcheck</span> and <span class="mono">actionlint</span>. CI just makes sure they <b style="color:#c4cfde">always</b> run.</p>
   </div>
 
   <div class="controls">
-    <span class="lead-step" id="runner-step">It starts with an <b>event</b> — a push to a PR branch.</span>
+    <span class="lead-step" id="runner-step">It starts with an <b>event</b>: a push to a PR branch.</span>
     <button class="btn" data-act="back">◀ Back</button>
     <button class="btn primary" data-act="next">Next ▶</button>
   </div>
@@ -710,17 +793,17 @@ on:
 
   <div class="body">
     <div class="sechead">
-      <span class="num">07</span>
+      <span class="num">08</span>
       <div>
         <div class="title">Reading the lab's <span class="mono" style="font-size:34px">ci.yml</span></div>
-        <div class="lead">This is the file you'll build from scratch in the We-do and finish in the lab. Two independent jobs — the Part 1 linters, and the validator.</div>
+        <div class="lead">This is the file you'll build from scratch in the We-do and finish in the lab. Two independent jobs: the Part 1 linters, and the validator.</div>
       </div>
     </div>
     <div class="cols2">
       <div class="code"><pre>name: CI
 on:
   pull_request:
-    paths: [<span class="cmd2">"projects/**"</span>, <span class="cmd2">"ops/**"</span>, …]
+    paths: [<span class="cmd2">"projects/**"</span>, <span class="cmd2">"scripts/**"</span>, …]
   push:
     branches: [main]
 permissions:
@@ -736,27 +819,26 @@ jobs:
       - run: pip install yamllint==1.35.1 ign-lint==0.6.1
       - run: yamllint -c .yamllint.yml .
       - uses: raven-actions/actionlint@v2
-      - run: shellcheck ops/*.sh   <span class="cm"># apt-get install first</span>
+      - run: shellcheck scripts/*.sh   <span class="cm"># apt-get install first</span>
       - run: ign-lint --config rule_config.json --files <span class="cmd2">"projects/**/view.json"</span>
       - run: docker compose config -q
   validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: ops/validate.sh</pre></div>
+      - run: scripts/validate.sh</pre></div>
       <div>
         <ul class="checks">
           <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Two jobs, two VMs, parallel.</b> Independent failures: a shell bug fails <span class="mono">lint</span>; broken JSON fails <span class="mono">validate</span>.</span></li>
-          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Steps are sequential</b> — a failing step skips the rest of its job and fails it. (<span class="mono">continue-on-error</span> and <span class="mono">needs:</span> exist for when you want different behaviour.)</span></li>
+          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Steps are sequential:</b> a failing step skips the rest of its job and fails it. (<span class="mono">continue-on-error</span> and <span class="mono">needs:</span> exist for when you want different behaviour.)</span></li>
           <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b><span class="mono">"3.12"</span> is quoted</b> because unquoted YAML coerces it to the float <b>3.1</b>. A classic. And <span class="mono">ign-lint</span> needs Python 3.10+, so the pin matters.</span></li>
           <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>The <span class="mono">--files</span> glob is quoted</b> so the runner's shell doesn't expand it before ign-lint sees it.</span></li>
-          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>No reusable workflows here</b> — deliberately. You see what's inside before you ever call one.</span></li>
         </ul>
       </div>
     </div>
   </div>
 
-  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>Same commands you ran locally — that's the point</span></div>
+  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>Same commands you ran locally; that's the point</span></div>
 </section>
 
 <!-- 14 · PERMISSIONS & SECRETS -->
@@ -768,60 +850,67 @@ jobs:
 
   <div class="body">
     <div class="sechead">
-      <span class="num">08</span>
+      <span class="num">09</span>
       <div>
         <div class="title">Permissions, <span class="mono" style="font-size:32px">GITHUB_TOKEN</span> &amp; secrets</div>
-        <div class="lead">A workflow is code that runs with credentials. Treat those credentials like production access — because one day they will be.</div>
+        <div class="lead">A workflow is code that runs with credentials. Treat those credentials like production access, because one day they will be.</div>
       </div>
     </div>
     <ul class="checks" style="max-width:960px">
-      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b><span class="mono">permissions: contents: read</span></b> — least privilege at the workflow level. The default <span class="mono">GITHUB_TOKEN</span> grant is broader than a lint job ever needs; our jobs only read the repo, so that's all they get.</span></li>
-      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b><span class="mono">GITHUB_TOKEN</span></b> — auto-provisioned <b>per job</b>, scoped to <b>this repo</b>, expires when the job ends. You never create it, rotate it, or store it.</span></li>
-      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Secrets</b> — encrypted at rest, injected on demand, and <b>masked as <span class="mono">***</span> in logs</b>. In the We-do we add an <span class="mono">EXAMPLE_SECRET</span>, echo it, and watch GitHub censor it live.</span></li>
-      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Variables</b> — the unencrypted sibling. Fine for a gateway URL; never for a password. If it would hurt in a screenshot, it's a secret.</span></li>
+      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Every job gets a <span class="mono">GITHUB_TOKEN</span></b>: a short-lived password that GitHub mints automatically so the runner VM can talk to GitHub. It's how <span class="mono">checkout</span> clones the repo. It acts as the <b>workflow's own identity</b>, not yours or any collaborator's; it only works on <b>this repo</b> and dies when the job ends. You never create it, rotate it, or store it.</span></li>
+      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b><span class="mono">permissions: contents: read</span></b> sets what that token may do: read repo contents (all <span class="mono">checkout</span> needs), nothing else. No pushing, no writing issues or releases. The default grant is broader than a lint job ever needs, so we cut it down. Human access to the repo is untouched.</span></li>
+      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Secrets</b> are encrypted at rest, injected on demand, and <b>masked as <span class="mono">***</span> in logs</b>. In the We-do we add an <span class="mono">EXAMPLE_SECRET</span>, echo it, and watch GitHub censor it live.</span></li>
+      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Variables</b> are the unencrypted sibling. Fine for a gateway URL; never for a password. If it would hurt in a screenshot, it's a secret.</span></li>
     </ul>
     <div class="callout">
       <div class="lab">Foreshadowing</div>
-      <p>Masking is a <b>display feature, not a security boundary</b> — a malicious workflow can still exfiltrate a secret it has access to. That's why permissions and triggers matter, and why Day 4 spends a whole session on <b>secrets management</b> done properly.</p>
+      <p>Masking is a <b>display feature, not a security boundary</b>: a malicious workflow can still exfiltrate a secret it has access to. That's why permissions and triggers matter, and why Day 4 spends a whole session on <b>secrets management</b> done properly.</p>
     </div>
   </div>
 
   <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>Least privilege by default</span></div>
 </section>
 
-<!-- 15 · REQUIRED CHECKS -->
+<!-- 15 · BRANCH PROTECTION -->
 <section class="slide">
   <div class="topbar">
     <div class="brandrow"><img class="logo-img" src="logos/OriginalDark.png" alt="Mustry Solutions"></div>
-    <div class="stage">GitHub Actions · the gate</div>
+    <div class="stage">GitHub Actions · branch protection</div>
   </div>
 
   <div class="body">
     <div class="sechead">
-      <span class="num">09</span>
+      <span class="num">10</span>
       <div>
-        <div class="title">Required checks — CI grows teeth</div>
-        <div class="lead">A green workflow is information. A <b>required status check</b> is enforcement: branch protection on <span class="mono">main</span> disables the merge button until <span class="mono">lint</span> and <span class="mono">validate</span> pass.</div>
+        <div class="title">Branch protection: require <span class="mono" style="font-size:32px">lint</span> and <span class="mono" style="font-size:32px">validate</span> to pass</div>
+        <div class="lead"><b>Branch protection</b> is a rule on <span class="mono">main</span> that disables the merge button until conditions are met. We make our two CI jobs <b>required status checks</b>: a green workflow on its own is just information; branch protection turns it into enforcement.</div>
       </div>
     </div>
     <div class="cols2">
       <div>
         <ul class="checks">
-          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Settings → Branches → protect <span class="mono">main</span>:</b> require a PR before merging, and require the <b><span class="mono">lint</span></b> and <b><span class="mono">validate</span></b> checks to pass.</span></li>
+          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Where it lives: Settings → Branches → add a rule for <span class="mono">main</span>.</b> Four rules do the job:</span></li>
+        </ul>
+        <div class="code" style="margin-top:14px"><pre>[✓] Require a pull request before merging  <span class="cm"># blocks direct commits</span>
+[✓] Require status checks to pass          <span class="cm"># select lint + validate</span>
+[✓] Block force pushes                     <span class="cm"># no rewriting history</span>
+[✓] Restrict deletions                     <span class="cm"># main can't be deleted</span>
+<span class="bad">[ ] Restrict updates                       # trap: blocks PR merges too</span></pre></div>
+        <ul class="checks" style="margin-top:14px">
           <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>The shift in language:</b> from <i>"please remember to run the linters"</i> to <i>"you <b>cannot</b> merge until they pass."</i> The safety net stops depending on memory.</span></li>
-          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>You'll prove it in the lab:</b> plant the broken state, open a PR, and watch GitHub physically block the merge — then fix, re-push, and merge.</span></li>
+          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>You'll prove it in the lab:</b> plant the broken state, open a PR, and watch GitHub physically block the merge, then fix, re-push, and merge.</span></li>
         </ul>
       </div>
       <div>
         <div class="callout" style="margin-top:0">
           <div class="lab">It's a team contract</div>
-          <p>A required check is a <b>contract with the team</b>, not just a setting. Who decides what's blocking? Who maintains CI when it's flaky? A check the team routinely overrides is worse than no check — it trains everyone to ignore red.</p>
+          <p>A required check is a <b>contract with the team</b>, not just a setting. Who decides what's blocking? Who maintains CI when it's flaky? A check the team routinely overrides is worse than no check: it trains everyone to ignore red.</p>
         </div>
-        <!-- TODO [VERIFY]: interaction between paths: filters and required checks — when a docs-only PR
+        <!-- TODO [VERIFY]: interaction between paths: filters and required checks. When a docs-only PR
              skips the workflow, GitHub leaves required checks in "Expected" state, which can block the
              merge of docs-only PRs. GitHub's documented workaround is a no-op workflow with the same job
              names (or GitHub's newer "skipped checks count as passed" behaviour for paths-filtered
-             workflows — verify current behaviour before teaching this slide). lab.md step 1 + step 4
+             workflows; verify current behaviour before teaching this slide). lab.md step 1 + step 4
              combined may hit this. -->
         <div class="callout" style="margin-top:16px">
           <div class="lab" style="color:var(--blue)">Also in this club</div>
@@ -843,43 +932,43 @@ jobs:
 
   <div class="body">
     <div class="sechead">
-      <span class="num">10</span>
+      <span class="num">11</span>
       <div>
-        <div class="title">The deployment environment — one gateway, wired for CI</div>
-        <div class="lead">Everything so far ran <b>gateway-free</b> — but the environment those files deploy to is in the repo too. <span class="mono">docker-compose.yml</span> defines one Ignition 8.3 gateway; <span class="mono">ops/</span> gives it a lifecycle. Two mounts explain the whole design.</div>
+        <div class="title">The deployment environment: one gateway, wired for CI</div>
+        <div class="lead">Everything so far ran <b>gateway-free</b>, but the environment those files deploy to is in the repo too. <span class="mono">docker-compose.yml</span> defines one Ignition 8.3 gateway; <span class="mono">scripts/</span> gives it a lifecycle. Two mounts explain the whole design.</div>
       </div>
     </div>
     <div class="split">
       <div>
         <ul class="checks">
-          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Named volume <span class="mono">ignition-data</span></b> — the gateway's own config + runtime state, self-generated on first boot. It never lands in the repo, so you never touch gateway config here (that's Lab 04).</span></li>
-          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Bind mount <span class="mono">./projects</span></b> — the one thing edited from the repo. The files <span class="mono">ign-lint</span> and <span class="mono">validate.sh</span> check <b>are</b> the files the gateway runs — no packaging step for drift to hide in.</span></li>
-          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Edits aren't auto-detected</b> — a running gateway won't see changes to the bind-mounted files until you trigger a project scan (<span class="mono">ops/scan.sh</span>, needs an API key in <span class="mono">.env</span>) or <span class="mono">docker compose restart</span>.</span></li>
-          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>The bridge to Chapter 3:</b> this gateway answers on <span class="mono">localhost:8088</span>. A production gateway sits behind a firewall — and deploying <b>into</b> it (Labs 04–05) is exactly when CI needs a machine that can reach it.</span></li>
+          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Named volume <span class="mono">ignition-data</span></b> holds the gateway's own config + runtime state, self-generated on first boot. It never lands in the repo, so you never touch gateway config here (that's Lab 04).</span></li>
+          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Bind mount <span class="mono">./projects</span></b> is the one thing edited from the repo. The files <span class="mono">ign-lint</span> and <span class="mono">validate.sh</span> check <b>are</b> the files the gateway runs, with no packaging step for drift to hide in.</span></li>
+          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Edits aren't auto-detected:</b> a running gateway won't see changes to the bind-mounted files until you trigger a project scan (<span class="mono">scripts/scan.sh</span>, needs an API key in <span class="mono">.env</span>) or <span class="mono">docker compose restart</span>.</span></li>
+          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>The bridge to Chapter 3:</b> this gateway answers on <span class="mono">localhost:8088</span>. A production gateway sits behind a firewall, and deploying <b>into</b> it (Labs 04 and 05) is exactly when CI needs a machine that can reach it.</span></li>
         </ul>
       </div>
       <div>
-        <div class="code"><pre><span class="cm"># docker-compose.yml — the two mounts that matter</span>
+        <div class="code"><pre><span class="cm"># docker-compose.yml: the two mounts that matter</span>
 volumes:
   - ignition-data:/usr/local/bin/ignition/data        <span class="cm"># gateway-owned</span>
   - ./projects:/usr/local/bin/ignition/data/projects  <span class="cm"># the repo's files</span>
 
-<span class="cm"># its lifecycle — ops/</span>
-ops/setup.sh      <span class="cm"># boot + wait for RUNNING → localhost:8088</span>
-ops/scan.sh       <span class="cm"># push project-file edits to the live gateway</span>
-ops/teardown.sh   <span class="cm"># stop · --volumes wipes gateway state</span></pre></div>
+<span class="cm"># its lifecycle: scripts/</span>
+scripts/setup.sh      <span class="cm"># boot + wait for RUNNING → localhost:8088</span>
+scripts/scan.sh       <span class="cm"># push project-file edits to the live gateway</span>
+scripts/teardown.sh   <span class="cm"># stop · --volumes wipes gateway state</span></pre></div>
         <div class="callout" style="margin-top:16px">
           <div class="lab" style="color:var(--blue)">Why CI never boots it</div>
-          <p>Every check in <code>ci.yml</code> validates this environment <b>without starting it</b>: <code>docker compose config -q</code> checks the environment's definition; <code>ign-lint</code> and <code>ops/validate.sh</code> check the project files it serves. Booting a gateway per PR would be slow and stateful — the checks are fast precisely because they don't.</p>
+          <p>Every check in <code>ci.yml</code> validates this environment <b>without starting it</b>: <code>docker compose config -q</code> checks the environment's definition; <code>ign-lint</code> and <code>scripts/validate.sh</code> check the project files it serves. Booting a gateway per PR would be slow and stateful; the checks are fast precisely because they don't.</p>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>docker-compose.yml · ops/setup.sh · scan.sh · teardown.sh</span></div>
+  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>docker-compose.yml · scripts/setup.sh · scan.sh · teardown.sh</span></div>
 </section>
 
-<!-- 17 · DIVIDER — CH 3 -->
+<!-- 17 · DIVIDER · CH 3 -->
 <section class="slide dark">
   <div class="topbar">
     <div class="on-dark brandrow"><img class="logo-img" src="logos/OriginalLight.png" alt="Mustry Solutions"></div>
@@ -890,10 +979,10 @@ ops/teardown.sh   <span class="cm"># stop · --volumes wipes gateway state</span
     <div class="q">What if CI can't <em>reach</em> your gateway?</div>
     <div class="sub2">GitHub-hosted runners live in GitHub's cloud. Your production gateway lives behind a firewall, on a customer VPN, next to a PLC network. Sooner or later, CI has to come to <span style="color:#fff">you</span>.</div>
   </div>
-  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>a look ahead — hands-on in Labs 04–05</span></div>
+  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>a look ahead · hands-on in Labs 04 and 05</span></div>
 </section>
 
-<!-- 18 · SELF-HOSTED — ARCHITECTURE & WHEN -->
+<!-- 18 · SELF-HOSTED · ARCHITECTURE & WHEN -->
 <section class="slide dark">
   <div class="topbar">
     <div class="on-dark brandrow"><img class="logo-img" src="logos/OriginalLight.png" alt="Mustry Solutions"></div>
@@ -901,34 +990,34 @@ ops/teardown.sh   <span class="cm"># stop · --volumes wipes gateway state</span
   </div>
 
   <div class="stage-wrap">
-    <div class="vtitle">The runner comes to the network — not the other way</div>
-    <p class="lead" style="text-align:center;margin:6px auto 0;color:#c4cfde">A runner is a lightweight agent that <b style="color:#fff">polls GitHub outbound</b> for jobs. There is <b style="color:#fff">no inbound connection</b> from GitHub — nothing to open on the firewall.</p>
+    <div class="vtitle">The runner comes to the network, not the other way</div>
+    <p class="lead" style="text-align:center;margin:6px auto 0;color:#c4cfde">A runner is a lightweight agent that <b style="color:#fff">polls GitHub outbound</b> for jobs. There is <b style="color:#fff">no inbound connection</b> from GitHub, so there is nothing to open on the firewall.</p>
 
     <div class="net">
       <div class="netbox">
         <div class="nh">GitHub's cloud</div>
-        <div class="ni">Actions service — queues jobs, stores logs</div>
-        <div class="ni">GitHub-hosted runners (ubuntu-latest…)<br><span style="color:#8fa0b6">fine for lint + validate — no plant access needed</span></div>
+        <div class="ni">Actions service: queues jobs, stores logs</div>
+        <div class="ni">GitHub-hosted runners (ubuntu-latest…)<br><span style="color:#8fa0b6">fine for lint + validate, no plant access needed</span></div>
       </div>
       <div class="fw"><div class="wall"></div><div class="cap">firewall / VPN</div></div>
       <div class="netbox plant">
         <div class="nh">Your network (plant / customer site)</div>
-        <div class="ni hl">self-hosted runner — polls outbound: "any jobs for me?" → executes → returns logs</div>
-        <div class="ni">Ignition gateway(s) — the deploy target GitHub-hosted can never reach</div>
+        <div class="ni hl">self-hosted runner: polls outbound: "any jobs for me?" → executes → returns logs</div>
+        <div class="ni">Ignition gateway(s): the deploy target GitHub-hosted can never reach</div>
         <div class="ni">PLC network · historian DB · internal artifact registry</div>
       </div>
     </div>
 
     <ul class="checks" style="max-width:1050px">
-      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>When you need one:</b> ① <b>network isolation</b> — the big one for Ignition; ② compliance / data residency; ③ real hardware (a physical PLC, an OPC-UA server); ④ cost at very high volume — rarely, don't optimise prematurely.</span></li>
-      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>When you don't:</b> everything in today's lab. Lint and validate run on a standard image — use GitHub-hosted and move on. A runner host is a machine you now <b>own, patch, and monitor</b>.</span></li>
+      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>When you need one: network isolation</b>, the big one for Ignition;  </span></li>
+      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>When you don't:</b> everything in today's lab. Lint and validate run on a standard image, so use GitHub-hosted and move on. A runner host is a machine you now <b>own, patch, and monitor</b>.</span></li>
     </ul>
   </div>
 
   <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>docs/self-hosted-runners.md</span></div>
 </section>
 
-<!-- 19 · SELF-HOSTED — THE ONE RULE -->
+<!-- 19 · SELF-HOSTED · THE ONE RULE -->
 <section class="slide">
   <div class="topbar">
     <div class="brandrow"><img class="logo-img" src="logos/OriginalDark.png" alt="Mustry Solutions"></div>
@@ -937,9 +1026,9 @@ ops/teardown.sh   <span class="cm"># stop · --volumes wipes gateway state</span
 
   <div class="body">
     <div class="sechead">
-      <span class="num">11</span>
+      <span class="num">12</span>
       <div>
-        <div class="title">The one rule — and the guardrails</div>
+        <div class="title">The one rule, and the guardrails</div>
         <div class="lead">A self-hosted runner <b>executes arbitrary workflow code inside your network</b>, with the host's filesystem, network reach, and cached credentials. Treat it as highly trusted infrastructure.</div>
       </div>
     </div>
@@ -947,24 +1036,26 @@ ops/teardown.sh   <span class="cm"># stop · --volumes wipes gateway state</span
       <div>
         <div class="callout" style="margin-top:0;border-left:5px solid var(--red)">
           <div class="lab" style="color:var(--red)">Never do this</div>
-          <p><b>Never attach a self-hosted runner to a public repo that accepts fork PRs.</b> A malicious PR edits the workflow, the runner dutifully executes it — exfiltrated secrets, a backdoor, a pivot into the PLC network. This is not theoretical.</p>
+          <p><b>Never attach a self-hosted runner to a public repo that accepts fork PRs.</b> A malicious PR edits the workflow, the runner dutifully executes it, and the result is exfiltrated secrets, a backdoor, a pivot into the PLC network. This is not theoretical.</p>
         </div>
-        <div class="code" style="margin-top:16px"><pre><span class="cm"># the demo you'll see in the We-do:</span>
-<span class="cm"># ephemeral Docker runner, one job, then gone</span>
-docker run -d --rm --name lab03-runner \
-  -e REPO_URL=<span class="cmd2">"https://github.com/&lt;you&gt;/&lt;repo&gt;"</span> \
-  -e RUNNER_TOKEN=<span class="cmd2">"$RUNNER_TOKEN"</span> \
-  -e LABELS=<span class="cmd2">"self-hosted,local-lab03"</span> \
-  -e EPHEMERAL=true \
-  myoung34/github-runner:latest</pre></div>
+        <div class="code" style="margin-top:16px"><pre><span class="cm"># Settings → Actions → Runners → New self-hosted runner</span>
+<span class="cm"># GitHub generates these commands for you, token included:</span>
+curl -o actions-runner.tar.gz -L <span class="cmd2">https://github.com/actions/runner/…</span>
+tar xzf actions-runner.tar.gz
+./config.sh --url <span class="cmd2">https://github.com/&lt;you&gt;/&lt;repo&gt;</span> --token <span class="cmd2">ABC123…</span>
+./run.sh  <span class="cm"># polls for work; runs-on: self-hosted lands here</span></pre></div>
+        <div class="callout" style="margin-top:16px">
+          <div class="lab" style="color:var(--blue)">Same animal, other names</div>
+          <p>Every CI platform has this exact concept: a small agent you install on your own machine that polls the server outbound for jobs. GitLab calls it a <b>Runner</b>, Azure DevOps a <b>self-hosted agent</b>, Jenkins an <b>agent</b> (or node), TeamCity a <b>build agent</b>. Learn it once, recognise it everywhere.</p>
+        </div>
       </div>
       <div>
         <ul class="checks">
-          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Ephemeral runners</b> — destroyed after every job; a compromised job leaves nothing behind.</span></li>
+          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Ephemeral runners</b> are destroyed after every job; a compromised job leaves nothing behind.</span></li>
           <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Private repos only</b>, restricted workflow triggers, approval required for first-time contributors.</span></li>
-          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Network-isolate the runner</b> — its own subnet, only the outbound access it needs. Never production credentials on the host; short-lived tokens via OIDC.</span></li>
-          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>The runner only has what you put on it.</b> No preinstalled shellcheck, no Python — the "works on ubuntu-latest" assumption dies here. You'll see this live in the demo.</span></li>
-          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Where it sits for Ignition:</b> a dedicated build host with network access <b>to</b> the gateway — not on the gateway server itself. Hands-on in Labs 04–05.</span></li>
+          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Network-isolate the runner:</b> its own subnet, only the outbound access it needs. Never production credentials on the host; short-lived tokens via OIDC.</span></li>
+          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>The runner only has what you put on it.</b> No preinstalled shellcheck, no Python: the "works on ubuntu-latest" assumption dies here. You'll see this live in the demo.</span></li>
+          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Where it sits for Ignition:</b> a dedicated build host with network access <b>to</b> the gateway, not on the gateway server itself. Hands-on in Labs 04 and 05.</span></li>
         </ul>
       </div>
     </div>
@@ -982,11 +1073,11 @@ docker run -d --rm --name lab03-runner \
 
   <div class="body">
     <div class="eyebrow">Now we make it real</div>
-    <div class="title" style="max-width:24ch;color:#fff">Next: we <em style="font-style:normal;color:var(--peri2)">break</em> the project on purpose — and let the machines find it.</div>
+    <div class="title" style="max-width:24ch;color:#fff">Next: we <em style="font-style:normal;color:var(--peri2)">break</em> the project on purpose, and let the machines find it.</div>
     <ul class="checks" style="max-width:960px;margin-top:22px">
-      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>We-do (10:00).</b> <span class="mono">ops/seed.sh</span> plants six realistic bugs — including the brittle binding and the runaway poll you just saw. We run every linter live, read the output, fix one finding each. Then we build <span class="mono">ci.yml</span> from scratch, open a PR, watch a secret get masked, and register an ephemeral runner.</span></li>
+      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>We-do (10:00).</b> <span class="mono">scripts/seed.sh</span> plants six realistic bugs, including the brittle binding and the runaway poll you just saw. We run every linter live, read the output, fix one finding each. Then we build <span class="mono">ci.yml</span> from scratch, open a PR, watch a secret get masked, and register an ephemeral runner.</span></li>
       <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>You-do (11:00, breakout rooms).</b> You hunt the remaining findings yourself, tune <span class="mono">.yamllint.yml</span>, then finish the workflow in <b>your own repo</b>: path filters, compose validation, a badge, and a required check that blocks a red PR.</span></li>
-      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>The payoff.</b> By lunch, "broken project files can't reach <span class="mono">main</span>" is not a promise — it's a setting.</span></li>
+      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>The payoff.</b> By lunch, "broken project files can't reach <span class="mono">main</span>" is not a promise, it's a setting. <b>After lunch (Lab 04) we point that green pipeline at a real gateway and actually deploy.</b></span></li>
     </ul>
   </div>
 
@@ -1025,7 +1116,7 @@ window.addEventListener('keydown',e=>{
   if(e.key==='ArrowUp'||e.key==='PageUp'){e.preventDefault();deck.scrollTo({top:(i-1)*window.innerHeight})}
   if(e.key==='Home'){deck.scrollTo({top:0})}
   if(e.key==='End'){deck.scrollTo({top:slides.length*window.innerHeight})}
-  // Left/Right ONLY step the current slide's animation — they never change slides.
+  // Left/Right ONLY step the current slide's animation; they never change slides.
   if(e.key==='ArrowRight'){e.preventDefault(); if(bound[i])bound[i].go(1);}
   if(e.key==='ArrowLeft'){e.preventDefault(); if(bound[i])bound[i].go(-1);}
 });
@@ -1052,9 +1143,9 @@ function revealUpTo(slide,s){
   slide.querySelectorAll('.reveal').forEach(it=>it.classList.toggle('show',+it.dataset.step<=s));
 }
 
-/* ---------- slide 7 (index 6): the broken binding story ---------- */
+/* ---------- broken binding story (render index 7) ---------- */
 (function(){
-  const slide=slides[6];
+  const slide=slides[7];
   const lead=slide.querySelector('#binding-step');
   const bind=slide.querySelector('#bind-code');
   const tile=slide.querySelector('#tile-discharge');
@@ -1064,10 +1155,10 @@ function revealUpTo(slide,s){
   const BROKEN="Discharge.Value ⟵ <span style='color:#ef8f8f'>{../../SuctionPressure.Value.props.text}</span>  <span style='color:#7d93ad'>// renamed → Suction</span>";
   const texts=[
     'A healthy view: Discharge gets its value from a clean <b>runScript data binding</b>.',
-    'The component tree names: <b>Suction · Discharge · Load · Power</b> — plus a Clock polling <b>now(1000)</b>.',
-    'The edit lands. The view <b>still loads</b> — the gateway raises no error. The tile just goes blank. A human reviewer skimming <span class="mono">view.json</span> in a PR diff would probably miss it too.',
+    'The component tree names: <b>Suction · Discharge · Load · Power</b>, plus a Clock polling <b>now(1000)</b>.',
+    'The edit lands. The view <b>still loads</b>; the gateway raises no error. The tile just goes blank. A human reviewer skimming <span class="mono">view.json</span> in a PR diff would probably miss it too.',
     '<b>ign-lint catches it twice</b>: brittle traversal (BadComponentReferenceRule) and a reference that doesn\'t resolve (ComponentReferenceValidationRule). Statically. In seconds. No gateway.',
-    'And the second seeded bug: the Clock at <b>now(250)</b> trips PollingIntervalRule. In the lab, <span class="mono">ops/seed.sh</span> plants exactly these — you\'ll hunt them down yourself.'
+    'And the second seeded bug: the Clock at <b>now(250)</b> trips PollingIntervalRule. In the lab, <span class="mono">scripts/seed.sh</span> plants exactly these, and you\'ll hunt them down yourself.'
   ];
   controllers.binding={max:4,render(s){
     revealUpTo(slide,s);
@@ -1075,40 +1166,40 @@ function revealUpTo(slide,s){
     bind.innerHTML=broken?BROKEN:CLEAN;
     bind.classList.toggle('badb',broken);
     tile.classList.toggle('broken',broken);
-    dval.textContent=broken?'— — —':'−6.5 °C';
+    dval.textContent=broken?'···':'−6.5 °C';
     clock.textContent=s>=4?'Clock · now(250)':'Clock · now(1000)';
     clock.classList.toggle('bad2',s>=4);
     lead.innerHTML=texts[s];
   }};
 })();
 
-/* ---------- slide 10 (index 9): workflow anatomy ---------- */
+/* ---------- workflow anatomy (render index 11) ---------- */
 (function(){
-  const slide=slides[9];
+  const slide=slides[11];
   const lead=slide.querySelector('#anatomy-step');
   const texts=[
     'The <b>workflow</b> is the file: it owns the triggers (<span class="mono">on:</span>), permissions, and a name.',
-    'A workflow contains <b>jobs</b>. Each job declares <span class="mono">runs-on</span> — which machine it wants. Jobs run in <b>parallel</b> by default.',
-    'A job is a list of <b>steps</b>, run in order. Two flavours: <b><span class="mono">uses:</span></b> calls a reusable <b>action</b> from the marketplace; <b><span class="mono">run:</span></b> executes shell — the exact commands you ran locally.'
+    'A workflow contains <b>jobs</b>. Each job declares <span class="mono">runs-on</span>, which machine it wants. Jobs run in <b>parallel</b> by default.',
+    'A job is a list of <b>steps</b>, run in order. Two flavours: <b><span class="mono">uses:</span></b> calls a reusable <b>action</b> from the marketplace; <b><span class="mono">run:</span></b> executes shell, the exact commands you ran locally.'
   ];
   controllers.anatomy={max:2,render(s){ revealUpTo(slide,s); lead.innerHTML=texts[s]; }};
 })();
 
-/* ---------- slide 12 (index 11): runner model ---------- */
+/* ---------- runner model (render index 13) ---------- */
 (function(){
-  const slide=slides[11];
+  const slide=slides[13];
   const lead=slide.querySelector('#runner-step');
   const texts=[
-    'It starts with an <b>event</b> — a push to a PR branch.',
+    'It starts with an <b>event</b>: a push to a PR branch.',
     'GitHub provisions <b>one fresh, empty VM per job</b>. lint and validate start in parallel, on separate machines, sharing nothing.',
-    'Inside each VM the <b>steps run sequentially</b> — which is why <span class="mono">checkout</span> is step one: the VM starts <b>empty</b>, without even your code.',
-    'Job ends → <b>VM destroyed</b>. No state survives between jobs or runs — except what you explicitly pass via <b>artifacts</b> or <b>caching</b>. Remember this model; it explains almost every CI surprise.'
+    'Inside each VM the <b>steps run sequentially</b>, which is why <span class="mono">checkout</span> is step one: the VM starts <b>empty</b>, without even your code.',
+    'Job ends → <b>VM destroyed</b>. No state survives between jobs or runs, except what you explicitly pass via <b>artifacts</b> or <b>caching</b>. Remember this model; it explains almost every CI surprise.'
   ];
   controllers.runner={max:3,render(s){ revealUpTo(slide,s); lead.innerHTML=texts[s]; }};
 })();
 
 /* ============ wire controllers to their slides + reset on entry ============ */
-const ctrlBySlide={6:'binding',9:'anatomy',11:'runner'};
+const ctrlBySlide={7:'binding',11:'anatomy',13:'runner'};
 const bound={};
 for(const idx in ctrlBySlide){const name=ctrlBySlide[idx];bound[idx]=bindControls(slides[idx],controllers[name]);}
 // reset a slide's animation when you scroll onto it

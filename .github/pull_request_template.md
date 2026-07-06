@@ -17,8 +17,8 @@ Keep it short; the goal is to make the reviewer's job easy.
 
 ## Checklist
 
-- [ ] Validation passes locally (`ops/validate.sh`)
+- [ ] Validation passes locally (`scripts/validate.sh`)
 - [ ] `ign-lint` is clean (`ign-lint --config rule_config.json --files "projects/**/view.json"`) — for view changes
-- [ ] Gateway still starts cleanly (`ops/setup.sh` → gateway reaches RUNNING) — for project changes
+- [ ] Gateway still starts cleanly (`scripts/setup.sh` → gateway reaches RUNNING) — for project changes
 - [ ] No secrets committed
 - [ ] Changes are scoped to one logical thing

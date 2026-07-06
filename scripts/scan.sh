@@ -31,7 +31,7 @@ if [ -z "$KEY" ]; then
   echo "No IGNITION_API_KEY set in .env — can't trigger a scan over the API."
   echo "Create one in the gateway UI ($URL):"
   echo "  Config → Security → API Keys → Create  (with Project Scan permission)"
-  echo "then add it to .env as  IGNITION_API_KEY=<value>  and re-run  ops/scan.sh."
+  echo "then add it to .env as  IGNITION_API_KEY=<value>  and re-run  scripts/scan.sh."
   echo "(Or just restart the gateway:  docker compose restart  — slower, no key needed.)"
   exit 1
 fi
