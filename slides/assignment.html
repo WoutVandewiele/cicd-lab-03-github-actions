@@ -167,7 +167,7 @@ body{
   <div class="cover">
     <div class="eyebrow">The assignment · breakout rooms · 60 min</div>
     <div class="big">Hunt the bugs, then <em>automate the hunt</em>.</div>
-    <div class="sub">Six realistic bugs are planted in the Ignition project: a brittle binding, a runaway poll, broken JSON, and friends. First you hunt them down with the linters. Then you make sure nobody ever has to hunt by hand again: a GitHub Actions workflow in <em style="color:#fff;font-style:normal">your own repo</em>, ending in branch protection on <span class="mono" style="color:#dbe4f0">main</span> that rejects direct pushes and blocks a red PR.</div>
+    <div class="sub">Seven realistic bugs are planted in the Ignition project: a brittle binding, a runaway poll, broken JSON, and friends. First you hunt them down with the linters. Then you make sure nobody ever has to hunt by hand again: a GitHub Actions workflow in <em style="color:#fff;font-style:normal">your own repo</em>, ending in branch protection on <span class="mono" style="color:#dbe4f0">main</span> that rejects direct pushes and blocks a red PR.</div>
     <div class="for">
       <span>Floating to help</span>
       <span class="pill"><b>Sam</b></span>
@@ -190,7 +190,7 @@ body{
     <ul class="checks" style="max-width:940px">
       <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Share your screen</b> in your breakout room. This is a "look over your shoulder" class, so we'll drop in where it's useful.</span></li>
       <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>The full script is <span class="inlinecode">exercises/lab.md</span>.</b> These slides are the map, that file is the territory. Keep it open next to your terminal.</span></li>
-      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Part 2 needs a repo you own</b> (admin rights for branch protection). Fork the lab or create your own repo from your clone <b>before</b> starting Part 2. Commands on the setup slide.</span></li>
+      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Part 2 needs a repo you own</b> (admin rights for branch protection). Fork the lab and <b>enable Actions on the fork</b> before starting Part 2. Commands on the setup slide.</span></li>
       <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Don't peek at <span class="inlinecode">instructor-notes/lab-key.md</span></b> until you've genuinely tried. The diagnostic skill (run tool, read output, decide) is most of the lesson.</span></li>
       <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Try it without AI.</b> The goal is the toolbelt in your fingers, and you'll steer AI far better afterwards.</span></li>
     </ul>
@@ -289,12 +289,12 @@ gh repo set-default &lt;you&gt;/cicd-lab-03-github-actions
     <div class="stage">Solo · Part 1 · the hunt</div>
   </div>
   <div class="body">
-    <div class="sechead"><span class="num p1" style="background:var(--blue)">PART 1 · 1-3</span><div><div class="title">Seed the broken state, hunt every finding</div><div class="lead">At least one planted issue per tool, including a brittle broken binding and a runaway poll in the Overview view.</div></div></div>
+    <div class="sechead"><span class="num p1" style="background:var(--blue)">PART 1 · 1-3</span><div><div class="title">Seed the broken state, hunt every finding</div><div class="lead">At least one planted issue per tool, including a brittle broken binding, a runaway poll and a mis-named component in the Overview view.</div></div></div>
     <div class="cols2">
       <div class="steps">
         <div class="step"><div class="ix">1</div><div class="tx">Run <span class="inlinecode">scripts/seed.sh</span>. It plants the issues into your working tree and prints what it broke (files + tools, not fixes).</div></div>
         <div class="step"><div class="ix">2</div><div class="tx">Run <b>all five checks</b> (see block) and <b>write down every finding</b>. Make a list: <i>what the tool flagged</i>, and in <i>which file</i>.</div></div>
-        <div class="step"><div class="ix">3</div><div class="tx">Spend the most time reading <b>ign-lint's</b> output. It fires <b>two rules on one binding</b> plus a poll-rate finding. Work out <i>why</i> each rule exists before fixing anything.</div></div>
+        <div class="step"><div class="ix">3</div><div class="tx">Spend the most time reading <b>ign-lint's</b> output. It fires <b>two rules on one binding</b>, plus a poll-rate finding and a naming finding. Work out <i>why</i> each rule exists before fixing anything.</div></div>
       </div>
       <div>
         <div class="code"><pre>scripts/seed.sh
@@ -358,7 +358,7 @@ scripts/validate.sh</pre></div>
   <div class="body">
     <div class="eyebrow">Part 2 · solo · your own repo</div>
     <div class="title" style="color:#fff;max-width:22ch">Make the workflow yours, and make it the gatekeeper</div>
-    <p class="lead">You built the two-job workflow in the We-do. Starting point in your repo (full version in <span class="mono" style="color:#dbe4f0">exercises/lab.md</span>):</p>
+    <p class="lead">In the We-do you set the shipped answer aside — <span class="mono" style="color:#dbe4f0">git mv .github/workflows/ci.yml .github/ci-reference.yml</span> — and rebuilt the two-job skeleton below from scratch (full version in <span class="mono" style="color:#dbe4f0">exercises/lab.md</span>). Pick up from there:</p>
     <div class="code" style="max-width:720px"><pre>name: CI
 on: [pull_request]            <span class="cm"># ← you'll refine this</span>
 permissions: {contents: read}
@@ -386,7 +386,7 @@ jobs:
     <div class="cols2">
       <div class="steps">
         <div class="step"><div class="ix p">1</div><div class="tx">Add the <span class="inlinecode">paths:</span> filter (see block) plus a <span class="inlinecode">push: branches: [main]</span> backstop trigger.</div></div>
-        <div class="step"><div class="ix p">1</div><div class="tx"><b>Prove it:</b> open a PR that touches <b>only</b> <span class="inlinecode">README.md</span> → the workflow must be <b>skipped</b>, not run-and-passed. Check the PR's checks panel.</div></div>
+        <div class="step"><div class="ix p">1</div><div class="tx"><b>Prove it:</b> open a PR that touches <b>only</b> <span class="inlinecode">README.md</span> → the workflow must be <b>skipped</b>, not run-and-passed. Check the PR's checks panel. Keep that PR open — it springs a trap in step 4.</div></div>
         <div class="step"><div class="ix p">2</div><div class="tx">Add <span class="inlinecode">docker compose config -q</span> as a final step of the <b>lint</b> job. It catches Compose-level issues yamllint can't see: undefined services, port-string typos, malformed env maps.</div></div>
       </div>
       <div>
@@ -428,8 +428,9 @@ jobs:
         <div class="step"><div class="ix p">4</div><div class="tx"><b>Protect <span class="inlinecode">main</span></b>: Settings → Branches → add a rule with the <b>four ticks</b> in the block. Grant <b>no bypass</b>: it's your repo, and a wall you can step over teaches you nothing.</div></div>
         <div class="step"><div class="ix p">4</div><div class="tx"><b>Try the forbidden route:</b> commit straight to <span class="inlinecode">main</span> and push (see block). <b>GitHub rejects the push.</b> Direct commits to <span class="inlinecode">main</span> are dead.</div></div>
         <div class="step"><div class="ix p">4</div><div class="tx"><b>Now the proper route:</b> the same change on a branch, open a PR, wait for <b><span class="inlinecode">lint</span></b> and <b><span class="inlinecode">validate</span></b> to go green, merge. The merge button is now the only door in.</div></div>
-        <div class="step"><div class="ix p">4</div><div class="tx"><b>Break it on purpose:</b> re-run <span class="inlinecode">scripts/seed.sh</span> (or just set the Clock to <span class="inlinecode">now(250)</span> by hand), commit on a branch, open a PR → <b>confirm GitHub blocks the merge</b>. Fix, re-push, watch it go green.</div></div>
-        <div class="step"><div class="ix p">5</div><div class="tx"><b>Sanity check:</b> your workflow should structurally match the shipped <span class="inlinecode">.github/workflows/ci.yml</span>. Reference end state in <span class="inlinecode">instructor-notes/lab-key.md</span>.</div></div>
+        <div class="step"><div class="ix p">4</div><div class="tx"><b>Break it on purpose:</b> re-run <span class="inlinecode">scripts/seed.sh</span> (or just set the Clock to <span class="inlinecode">now(250)</span> by hand), commit on a branch, open a PR → <b>confirm GitHub blocks the merge</b>. Fix <i>forward</i> (e.g. <span class="inlinecode">now(1500)</span>, not an exact revert — an empty diff re-triggers nothing), re-push, watch it go green.</div></div>
+        <div class="step"><div class="ix p">4</div><div class="tx"><b>The trap you set:</b> your docs-only PR from step 1 now hangs on <i>"Expected — waiting for status"</i> — a skipped required check never reports, so it never passes. Not a bug in your workflow; <span class="inlinecode">lab.md</span> explains it, and the no-op twin fix is a stretch goal.</div></div>
+        <div class="step"><div class="ix p">5</div><div class="tx"><b>Sanity check:</b> your workflow should structurally match the reference you set aside, <span class="inlinecode">.github/ci-reference.yml</span>. Walkthrough in <span class="inlinecode">instructor-notes/lab-key.md</span>.</div></div>
       </div>
       <div>
         <div class="code"><pre><span class="cm"># 4: the rule on main (Settings → Branches)</span>
@@ -565,7 +566,7 @@ git commit -am <span class="cmd2">"test: should be blocked"</span>
     <div class="eyebrow">Nicely done</div>
     <div class="title" style="color:#fff;max-width:24ch">The safety net is no longer a promise. It's a setting.</div>
     <ul class="checks" style="max-width:940px;margin-top:22px">
-      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span>You hunted <b>six planted bugs</b> with five tools, and can now say which linter catches which class of bug, including the Ignition-specific ones.</span></li>
+      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span>You hunted <b>seven planted bugs</b> with five tools, and can now say which linter catches which class of bug, including the Ignition-specific ones.</span></li>
       <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span>Your repo runs a <b>two-job workflow</b> with least-privilege permissions, path filters and a badge, plus <b>branch protection on <span class="mono" style="color:#dbe4f0">main</span></b> that rejected your direct push and physically blocked a red PR.</span></li>
       <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span>Bring to the wrap-up: <b>which linter would have caught your team's last real bug</b>, and one ign-lint rule you'd call overreach.</span></li>
     </ul>

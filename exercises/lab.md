@@ -77,18 +77,28 @@ pip install yamllint==1.35.1 ign-lint==0.6.1     # ign-lint needs Python 3.10+
 ### Your own repo (needed for Part 2)
 
 Part 2 has you open pull requests and set a *required status check* on `main` — both need
-a repo **you** control (you need admin rights to configure branch protection). Either fork
-this lab or create a fresh repo from your clone:
+a repo **you** control (you need admin rights to configure branch protection). Fork the lab
+to your own account, from inside the clone you already have:
 
 ```bash
-# Option A — fork it to your own account
-gh repo fork Mustry-Academy/cicd-lab-03-github-actions --clone
+# forks on GitHub and rewires this clone's remotes:
+#   origin → your fork · upstream → Mustry-Academy
+gh repo fork --remote
 
-# Option B — create your own repo from this clone
-gh repo create <you>/cicd-lab-03 --private --source=. --push
+# make gh target YOUR fork for PRs, not the source repo:
+gh repo set-default <you>/cicd-lab-03-github-actions
 ```
 
-Open PRs inside your own copy: you own it, so you can configure branch protection and merge
+Two fork gotchas, both one-time:
+
+1. **Enable workflows on the fork.** GitHub keeps Actions dormant on fresh forks: open your
+   fork's **Actions** tab on github.com and click *"I understand my workflows, go ahead and
+   enable them"*. Until you do, PRs in your fork run **no CI at all**.
+2. **Watch the PR base.** New pull requests default to the *source* repo
+   (`Mustry-Academy/...`). The `gh repo set-default` above fixes the CLI; in the web UI,
+   check that the base branch is **your fork's** `main` before you click create.
+
+Open PRs inside your own fork: you own it, so you can configure branch protection and merge
 your own PRs once CI is green.
 
 Reference reading lives in [`docs/validation-and-linters.md`](../docs/validation-and-linters.md)
@@ -136,7 +146,9 @@ fix one finding.
 2. `scripts/validate.sh`: the gateway-free green/red signal, and **not a linter**. It only checks
    that every `*.json` under `projects/` is valid JSON and every `code.py` parses as Python 3.
    Exit 0 = green, 1 = red. The same check the PR uses. It does **not** run yamllint/shellcheck/
-   actionlint/ign-lint for you; those are the separate commands in this list.
+   actionlint/ign-lint for you; those are the separate commands in this list. (Honest fine
+   print: the gateway runs **Jython 2.7**; this is a fast Python-3 *parse* check, not a Jython
+   validator. Write Python-3-parseable syntax and you're fine — the lab's scripts already are.)
 3. `ign-lint --config rule_config.json --files "projects/**/view.json"`: **the flagship
    tool of this part.** Ignition-native static analysis: it parses the Perspective
    `view.json`, walks the component tree, and checks naming conventions, binding poll
@@ -234,7 +246,17 @@ workflow  ──contains──▶  jobs  ──contains──▶  steps  ──r
    └── on (triggers), permissions, concurrency
 ```
 
-Live-create `.github/workflows/ci.yml`, starting with the gateway-free validator:
+The repo ships the **finished** workflow — it's the answer key, and your fork has it too.
+Move it aside first, so you're building your own rather than admiring ours (you'll compare
+against it in step 5):
+
+```bash
+git mv .github/workflows/ci.yml .github/ci-reference.yml
+git commit -m "chore: set aside the reference workflow"
+```
+
+With `.github/workflows/` empty, live-create `ci.yml`, starting with the gateway-free
+validator:
 
 ```yaml
 name: CI
@@ -323,9 +345,9 @@ typos, malformed environment maps.
 [![CI](https://github.com/<you>/<your-repo>/actions/workflows/ci.yml/badge.svg)](https://github.com/<you>/<your-repo>/actions/workflows/ci.yml)
 ```
 
-(`<your-repo>` is whatever you created in Setup — `cicd-lab-03-github-actions` for a
-fork, `cicd-lab-03` if you followed Option B. A wrong repo name gives a silently broken
-badge, not an error.)
+(`<you>` is your GitHub username; `<your-repo>` is `cicd-lab-03-github-actions` — a fork
+keeps the source repo's name. A wrong repo name gives a silently broken badge, not an
+error.)
 
 **4 — Protect `main`.** In repo settings, add a branch protection rule for `main` with four
 things enabled — and grant yourself no bypass, or the rules won't apply to you as the
@@ -336,6 +358,10 @@ repo admin:
 - **Block force pushes** — no rewriting history
 - **Restrict deletions** — `main` can't be deleted
 
+(If your Settings page offers the newer **rulesets** UI instead, the same four rules exist
+there — but leave **Restrict updates** *unticked*: it doesn't just block direct pushes, it
+blocks PR merges too.)
+
 Now prove the wall exists, from both sides:
 
 1. **The forbidden route.** Commit straight to `main`
@@ -345,7 +371,11 @@ Now prove the wall exists, from both sides:
    `validate` to go green, and merge. The merge button is now the only door in.
 3. **Break it on purpose.** Run `scripts/seed.sh` to plant the broken state (or just set the
    Clock's poll to `now(250)` by hand), commit on a branch, and open a PR. Confirm GitHub
-   blocks the merge. Fix and re-push.
+   blocks the merge. Then fix and re-push — but fix *forward* (e.g. `now(1500)`), don't
+   revert to the exact original value: a PR whose net diff against `main` is empty matches
+   no `paths:` filter, so CI never re-reports and the required checks sit on "Expected"
+   forever — the step-1 trap in a second costume. (If you did revert exactly, push any real
+   change, or close the now-empty PR; there's nothing left to merge anyway.)
 
 > **The trap you just set.** Required checks and `paths:` filters interact badly. Your
 > docs-only PR from step 1 was *skipped* — but a required check that never reports
@@ -360,9 +390,9 @@ Now prove the wall exists, from both sides:
 > understand *why* the PR hangs — this exact interaction bites real teams.
 
 **5 — Sanity check.** Commit any remaining changes. Your workflow should *structurally*
-match the shipped [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) — same
-triggers, jobs, and step order; step `name:` labels and comments may differ — see
-[`instructor-notes/lab-key.md`](../instructor-notes/lab-key.md) for the reference end state.
+match the reference you set aside at the start of this Part (`.github/ci-reference.yml`) —
+same triggers, jobs, and step order; step `name:` labels and comments may differ — see
+[`instructor-notes/lab-key.md`](../instructor-notes/lab-key.md) for the walkthrough.
 
 ### Stretch `[OPTIONAL]`
 
@@ -439,6 +469,11 @@ run`, then executes live in `docker logs`. Note the runner only has what you put
 preinstalled `shellcheck`, for instance). The full how-to — registering, routing, and cleaning
 up — is in [`docs/self-hosted-runners.md`](../docs/self-hosted-runners.md), and you'll do it
 for real in Lab 04.
+
+**If you try it yourself later:** cleanup is part of the exercise. Revert `runs-on:` to
+`ubuntu-latest`, stop the runner, confirm it's gone from *Settings → Actions → Runners*,
+and revoke any token you minted along the way (the `gh api` registration tokens above are
+short-lived and expire on their own).
 
 **Discussion.** Which of *your own* deploys would need a self-hosted runner — and why,
 specifically? ("Our gateway is behind the customer's VPN; GitHub-hosted physically can't reach

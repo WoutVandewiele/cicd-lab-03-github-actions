@@ -899,6 +899,7 @@ jobs:
         <ul class="checks" style="margin-top:14px">
           <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>The shift in language:</b> from <i>"please remember to run the linters"</i> to <i>"you <b>cannot</b> merge until they pass."</i> The safety net stops depending on memory.</span></li>
           <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>You'll prove it in the lab:</b> plant the broken state, open a PR, and watch GitHub physically block the merge, then fix, re-push, and merge.</span></li>
+          <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>One interaction to know:</b> a required check that a <span class="mono">paths:</span> filter skips <b>never reports</b> — the PR hangs on <i>"Expected — waiting for status"</i>. You'll walk into this deliberately in the lab; the documented fix is a no-op twin workflow.</span></li>
         </ul>
       </div>
       <div>
@@ -906,12 +907,9 @@ jobs:
           <div class="lab">It's a team contract</div>
           <p>A required check is a <b>contract with the team</b>, not just a setting. Who decides what's blocking? Who maintains CI when it's flaky? A check the team routinely overrides is worse than no check: it trains everyone to ignore red.</p>
         </div>
-        <!-- TODO [VERIFY]: interaction between paths: filters and required checks. When a docs-only PR
-             skips the workflow, GitHub leaves required checks in "Expected" state, which can block the
-             merge of docs-only PRs. GitHub's documented workaround is a no-op workflow with the same job
-             names (or GitHub's newer "skipped checks count as passed" behaviour for paths-filtered
-             workflows; verify current behaviour before teaching this slide). lab.md step 1 + step 4
-             combined may hit this. -->
+        <!-- Verified 2026-07-06: a paths-skipped required check stays "Expected" and blocks the PR;
+             GitHub has no skipped-counts-as-passed behaviour. The documented fix is the no-op twin
+             workflow — taught in lab.md's step-4 callout and stretch. -->
         <div class="callout" style="margin-top:16px">
           <div class="lab" style="color:var(--blue)">Also in this club</div>
           <p><b>Required reviews</b> (Day 1's PR discipline) and required checks compose: human judgement <i>and</i> machine verification, both enforced by the same branch-protection rule.</p>
@@ -1075,7 +1073,7 @@ tar xzf actions-runner.tar.gz
     <div class="eyebrow">Now we make it real</div>
     <div class="title" style="max-width:24ch;color:#fff">Next: we <em style="font-style:normal;color:var(--peri2)">break</em> the project on purpose, and let the machines find it.</div>
     <ul class="checks" style="max-width:960px;margin-top:22px">
-      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>We-do (10:00).</b> <span class="mono">scripts/seed.sh</span> plants six realistic bugs, including the brittle binding and the runaway poll you just saw. We run every linter live, read the output, fix one finding each. Then we build <span class="mono">ci.yml</span> from scratch, open a PR, watch a secret get masked, and register an ephemeral runner.</span></li>
+      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>We-do (10:00).</b> <span class="mono">scripts/seed.sh</span> plants seven realistic bugs, including the brittle binding and the runaway poll you just saw. We run every linter live, read the output, fix one finding each. Then we build <span class="mono">ci.yml</span> from scratch, open a PR, watch a secret get masked, and register an ephemeral runner.</span></li>
       <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>You-do (11:00, breakout rooms).</b> You hunt the remaining findings yourself, tune <span class="mono">.yamllint.yml</span>, then finish the workflow in <b>your own repo</b>: path filters, compose validation, a badge, and a required check that blocks a red PR.</span></li>
       <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>The payoff.</b> By lunch, "broken project files can't reach <span class="mono">main</span>" is not a promise, it's a setting. <b>After lunch (Lab 04) we point that green pipeline at a real gateway and actually deploy.</b></span></li>
     </ul>

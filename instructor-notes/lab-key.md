@@ -147,8 +147,11 @@ ign-lint. If the commit succeeds anyway: did they run `pre-commit install`? Is
 ### Reference end-state workflow
 
 The shipped [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) is the canonical end
-state. A participant's final state should be **structurally equivalent** — same triggers,
-same jobs, same step ordering. Cosmetic differences (step names, comment density) are fine.
+state. Participants set their fork's copy aside at the start of Part 2
+(`git mv .github/workflows/ci.yml .github/ci-reference.yml`) and rebuild `ci.yml` from
+scratch — so expect both files in their final tree; the rebuilt one is what you grade. It
+should be **structurally equivalent** to the reference — same triggers, same jobs, same
+step ordering. Cosmetic differences (step names, comment density) are fine.
 
 ```yaml
 on:
@@ -196,6 +199,8 @@ from `bw-design-group/ignition-lint`) is the Ignition-native linter for Perspect
 - **Path filter too broad** (`["**"]`) — defeats the purpose.
 - **Forgetting Python 3.10+ for `ign-lint`** — drop/older `setup-python` → install or run fails.
 - **Quoting the version as `3.12` not `"3.12"`** — YAML coerces it to the float `3.1`.
+- **Ticking "Restrict updates" in the newer rulesets UI** — it doesn't just block direct
+  pushes, it blocks PR merges too. The four rules from the You-do are all they need.
 
 ### Acceptable variations
 
@@ -235,6 +240,12 @@ workflow, dig in — they probably copy-pasted without understanding the privile
   so the PR waits forever. Options: the no-op twin workflow (stretch), an admin merge, or
   accepting it for a lab repo. This is the single most common real-world surprise with
   required checks — lean into it.
+- **"I fixed my broken PR but CI never re-ran."** They fixed by reverting to the exact
+  original value, so the PR's net diff against `main` is now empty — an empty changed-file
+  list matches no `paths:` filter, no run is created, and the required checks sit on
+  "Expected" (verified live: GitHub reports `changedFiles: 0` and the merge stays blocked).
+  Fix *forward* — any change that differs from base re-triggers CI — or close the now-empty
+  PR; there's nothing to merge anyway.
 - **"ign-lint install/run fails."** Almost always Python version — needs 3.10+. Confirm the
   `--files` glob is quoted (`"projects/**/view.json"`) so the shell doesn't expand it first.
 - **"validate fails but the views look fine."** It also parses every `code.py` as Python 3 —
