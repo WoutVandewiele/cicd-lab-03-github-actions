@@ -6,7 +6,8 @@ Day 2 of the [CI/CD for Ignition Masterclass](https://github.com/mustry-academy/
 
 This is the third lab in the course. The subject is the same **Ignition project** you
 worked on in [Lab 02](https://github.com/mustry-academy/cicd-lab-02-branching-and-prs) — a
-Perspective HMI screen (a refrigeration-plant overview) and a couple of Python script
+Perspective HMI screen (the Oatmakers Site 04 oat-line overview, the client from
+Lab 01) and a couple of Python script
 libraries, running on a local gateway you spin up yourself. Lab 02 had you edit those
 project files and open PRs **by hand**; this lab makes the checks **automatic**: the
 validation you ran manually becomes a required status check no one can merge past.

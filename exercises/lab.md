@@ -6,7 +6,7 @@ Actions workflow that makes those checks a required gate on every PR, then a loo
 *where* CI runs when GitHub-hosted isn't enough.
 
 > The subject is the same Ignition gateway and Perspective project from Lab 02 (a
-> cold-storage "Overview" HMI plus two Jython script libraries). You're not learning
+> Oatmakers Site 04 oat-line "Overview" HMI plus two Jython script libraries). You're not learning
 > new application code — you're adding CI around code you already understand. The repo
 > tracks only the project files under `projects/`; the gateway generates its own config
 > into a Docker volume we never commit. (Lab 04 goes deep on that file layout.)
@@ -140,21 +140,49 @@ traversal), `PylintScriptRule`, and the rest. The clean `lab-project` passes ign
 
 ### You do
 
-Fix the remaining planted issues, then make the config your own.
+Hunt every planted issue, fix them all, then make the config your own. (The step numbers
+match the assignment slides.)
 
-1. Run each of `yamllint`, `shellcheck`, `actionlint`, `ign-lint`, and `scripts/validate.sh`,
-   and write down each finding — make a list.
-2. Fix every finding. For each, record: *what the tool flagged*, *why your fix is correct*,
+1. Run `scripts/seed.sh` for a fresh broken state (reset first if your tree still carries
+   We-do fixes: `git restore . && rm -f .github/workflows/example.yml`).
+2. Run each of `yamllint`, `shellcheck`, `actionlint`, `ign-lint`, and `scripts/validate.sh`,
+   and write down each finding — make a list: *what the tool flagged*, in *which file*.
+3. Spend the most time reading **ign-lint**'s output. It fires two rules on one binding
+   (the Kiln tile), plus a poll-rate finding and a naming finding. Work out *why*
+   each rule exists before fixing anything.
+4. Fix every finding. For each, record: *what the tool flagged*, *why your fix is correct*,
    and *what class of production bug it would catch*.
-3. Re-run every linter until each is silent and `scripts/validate.sh` exits 0.
-4. Open `.yamllint.yml`. We disabled `line-length` for the project — **extend the comment**
+5. Re-run every linter until each is silent and `scripts/validate.sh` exits 0.
+6. Open `.yamllint.yml`. We disabled `line-length` for the project — **extend the comment**
    explaining *why* (hint: long compose environment lines).
-5. Commit. Your end state should be a clean tree: every linter silent, `scripts/validate.sh`
+7. Commit. Your end state should be a clean tree: every linter silent, `scripts/validate.sh`
    exits 0.
+
+> **No delete-cheats.** Don't silence ign-lint by deleting the Clock, the Kiln binding,
+> or the Power tile — only the *reference*, the *poll rate*, and the *name* were broken, so
+> restore real data bindings and a real name. The view must still load, and you can prove it
+> in the gateway: `docker compose restart` (or `scripts/scan.sh` with an API key in `.env`),
+> then reload the Overview page. A running gateway only picks up bind-mounted edits on a
+> project scan or a restart.
 
 > Stuck on a finding? [`instructor-notes/lab-key.md`](../instructor-notes/lab-key.md) has the
 > walkthrough — but give it a genuine attempt yourself first; the diagnostic skill is most
 > of the lesson.
+
+### Stretch `[OPTIONAL]` — block bad commits before they leave your machine
+
+CI catches it on the PR; [`pre-commit`](https://pre-commit.com) catches it at `git commit`.
+The repo ships the config: `.pre-commit-config.yaml` wires all four linters.
+
+1. Install and enable the hook: `pip install pre-commit`, then `pre-commit install`.
+2. Baseline run over everything: `pre-commit run --all-files` — should be clean after Part 1.
+3. **Prove it works:** make a bad change (set a binding to `now(250)`), try to commit, and
+   watch the ign-lint hook refuse the commit.
+4. Undo the bad change. If the commit went through anyway: did `pre-commit install` run? Is
+   `.git/hooks/pre-commit` populated?
+
+> **Two nets.** Pre-commit is the *fast, local* net; CI is the *enforced, shared* one. You
+> want both: local for speed, CI because hooks are opt-in and can be skipped.
 
 ### Debrief
 

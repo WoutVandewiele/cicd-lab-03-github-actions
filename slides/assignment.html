@@ -323,7 +323,7 @@ scripts/validate.sh</pre></div>
       <div>
         <div class="goal warn-g" style="margin-top:0">
           <span class="badge">No delete-cheats</span>
-          <p><b>Don't silence ign-lint by deleting the Clock or the Discharge binding.</b> Only the <i>reference</i> and the <i>poll rate</i> were broken, so restore them to real data bindings. The view must still load, so prove it in the gateway: <span class="inlinecode">docker compose restart</span> (or <span class="inlinecode">scripts/scan.sh</span> with an API key), then reload the Overview page. The gateway only picks up bind-mounted edits on a scan or restart.</p>
+          <p><b>Don't silence ign-lint by deleting the Clock, the Kiln binding or the Power tile.</b> Only the <i>reference</i>, the <i>poll rate</i> and the <i>name</i> were broken, so restore real data bindings and a real name. The view must still load, so prove it in the gateway: <span class="inlinecode">docker compose restart</span> (or <span class="inlinecode">scripts/scan.sh</span> with an API key), then reload the Overview page. The gateway only picks up bind-mounted edits on a scan or restart.</p>
         </div>
         <div class="goal good-g" style="margin-top:18px">
           <span class="badge">✅ Gate</span>

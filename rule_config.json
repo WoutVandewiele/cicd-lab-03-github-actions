@@ -1,17 +1,17 @@
 {
-  "_comment": "ign-lint rules for the lab's Perspective views. Tuned so the clean lab-project passes with zero findings. Docs: https://bw-design-group.github.io/ignition-lint",
+  "_comment": "ign-lint rules for the lab's Perspective views. Tuned so the clean lab-project passes with zero findings: min_length 2 admits the two-letter station tiles (CO, HT, ...), min_length 1 admits SVG attributes like 'r'. Docs: https://bw-design-group.github.io/ignition-lint",
   "NamePatternRule": {
     "enabled": true,
     "kwargs": {
       "node_type_specific_rules": {
         "component": {
           "convention": "PascalCase",
-          "min_length": 3,
+          "min_length": 2,
           "severity": "error"
         },
         "property": {
           "convention": "camelCase",
-          "min_length": 2,
+          "min_length": 1,
           "severity": "warning"
         },
         "message_handler": {

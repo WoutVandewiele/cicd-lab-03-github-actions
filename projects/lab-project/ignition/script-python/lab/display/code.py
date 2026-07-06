@@ -9,7 +9,7 @@ PLACEHOLDER = "--"
 
 
 def format_reading(value, units):
-    """Format a numeric tag reading for an HMI label, e.g. '-6.5 °C'.
+    """Format a numeric tag reading for an HMI label, e.g. '162.0 °C'.
 
     Rounds to one decimal place and appends the engineering units. Used by the
     Overview screen's KPI tiles via a runScript binding.

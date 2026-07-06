@@ -295,7 +295,7 @@ body{
       <div class="catcard c2">
         <div class="pn">AFTERNOON · LAB 02</div>
         <h4>Branching &amp; PRs, on Ignition</h4>
-        <p>The same project you'll use today: a refrigeration-plant Perspective HMI plus two Jython libraries. You branched, opened <b>pull requests</b>, and reviewed each other's changes by hand.</p>
+        <p>The same project you'll use today: the Oatmakers Site 04 oat-line Perspective HMI plus two Jython libraries. You branched, opened <b>pull requests</b>, and reviewed each other's changes by hand.</p>
       </div>
     </div>
     <div class="callout">
@@ -498,22 +498,22 @@ ign-lint --config rule_config.json \
     <div class="hmiwrap">
       <div class="hmi reveal" data-step="0">
         <div class="hmihead">
-          <span class="t">Cold-Storage Overview</span>
+          <span class="t">Oatmakers — Site 04 Oat Line</span>
           <span class="clock" id="hmi-clock">Clock · now(1000)</span>
         </div>
         <div class="tiles">
-          <div class="tile"><div class="tl">Suction</div><div class="tv">32.4 psi</div><div class="tn" id="tile-suction">Suction</div></div>
-          <div class="tile" id="tile-discharge"><div class="tl">Discharge</div><div class="tv" id="discharge-val">−6.5 °C</div><div class="tn">Discharge</div></div>
+          <div class="tile"><div class="tl">Bags</div><div class="tv">42 /min</div><div class="tn" id="tile-bags">Bags</div></div>
+          <div class="tile" id="tile-kiln"><div class="tl">Kiln</div><div class="tv" id="kiln-val">162.0 °C</div><div class="tn">Kiln</div></div>
           <div class="tile"><div class="tl">Load</div><div class="tv">68 %</div><div class="tn">Load</div></div>
           <div class="tile"><div class="tl">Power</div><div class="tv">412 kW</div><div class="tn">Power</div></div>
         </div>
-        <div class="bindline" id="bind-code">Discharge.Value ⟵ <span style="color:var(--teal-l)">runScript('lab.display.format_reading', 0, -6.5, '°C')</span></div>
+        <div class="bindline" id="bind-code">Kiln.Value ⟵ <span style="color:var(--teal-l)">runScript('lab.display.format_reading', 0, 162.0, '°C')</span></div>
       </div>
       <div>
         <div class="reveal" data-step="2">
           <div class="findbox" style="border-color:rgba(255,255,255,.2);background:rgba(255,255,255,.04)">
             <div class="fr" style="color:var(--peri2)">the edit</div>
-            <p>Someone points Discharge at a <b style="color:#fff">sibling tile by relative path</b>… and someone else renames <span class="mono">SuctionPressure</span> → <span class="mono">Suction</span>. The view still loads. The tile just goes <b style="color:#ef8f8f">quietly blank</b>.</p>
+            <p>Someone points Kiln at a <b style="color:#fff">sibling tile by relative path</b>… and someone else renames <span class="mono">BagsPerMin</span> → <span class="mono">Bags</span>. The view still loads. The tile just goes <b style="color:#ef8f8f">quietly blank</b>.</p>
           </div>
         </div>
         <div class="reveal" data-step="3">
@@ -523,7 +523,7 @@ ign-lint --config rule_config.json \
           </div>
           <div class="findbox">
             <div class="fr">ComponentReferenceValidationRule · error</div>
-            <p><span class="mono">SuctionPressure</span> doesn't resolve: there is <b style="color:#fff">no such component</b> anymore.</p>
+            <p><span class="mono">BagsPerMin</span> doesn't resolve: there is <b style="color:#fff">no such component</b> anymore.</p>
           </div>
         </div>
         <div class="reveal" data-step="4">
@@ -537,7 +537,7 @@ ign-lint --config rule_config.json \
   </div>
 
   <div class="controls">
-    <span class="lead-step" id="binding-step">A healthy view: Discharge gets its value from a clean <b>runScript data binding</b>.</span>
+    <span class="lead-step" id="binding-step">A healthy view: Kiln gets its value from a clean <b>runScript data binding</b>.</span>
     <button class="btn" data-act="back">◀ Back</button>
     <button class="btn primary" data-act="next">Next ▶</button>
   </div>
@@ -1148,14 +1148,14 @@ function revealUpTo(slide,s){
   const slide=slides[7];
   const lead=slide.querySelector('#binding-step');
   const bind=slide.querySelector('#bind-code');
-  const tile=slide.querySelector('#tile-discharge');
-  const dval=slide.querySelector('#discharge-val');
+  const tile=slide.querySelector('#tile-kiln');
+  const dval=slide.querySelector('#kiln-val');
   const clock=slide.querySelector('#hmi-clock');
-  const CLEAN="Discharge.Value ⟵ <span style='color:var(--teal-l)'>runScript('lab.display.format_reading', 0, -6.5, '°C')</span>";
-  const BROKEN="Discharge.Value ⟵ <span style='color:#ef8f8f'>{../../SuctionPressure.Value.props.text}</span>  <span style='color:#7d93ad'>// renamed → Suction</span>";
+  const CLEAN="Kiln.Value ⟵ <span style='color:var(--teal-l)'>runScript('lab.display.format_reading', 0, 162.0, '°C')</span>";
+  const BROKEN="Kiln.Value ⟵ <span style='color:#ef8f8f'>{../../BagsPerMin.Value.props.text}</span>  <span style='color:#7d93ad'>// renamed → Bags</span>";
   const texts=[
-    'A healthy view: Discharge gets its value from a clean <b>runScript data binding</b>.',
-    'The component tree names: <b>Suction · Discharge · Load · Power</b>, plus a Clock polling <b>now(1000)</b>.',
+    'A healthy view: Kiln gets its value from a clean <b>runScript data binding</b>.',
+    'The component tree names: <b>Bags · Kiln · Load · Power</b>, plus a Clock polling <b>now(1000)</b>.',
     'The edit lands. The view <b>still loads</b>; the gateway raises no error. The tile just goes blank. A human reviewer skimming <span class="mono">view.json</span> in a PR diff would probably miss it too.',
     '<b>ign-lint catches it twice</b>: brittle traversal (BadComponentReferenceRule) and a reference that doesn\'t resolve (ComponentReferenceValidationRule). Statically. In seconds. No gateway.',
     'And the second seeded bug: the Clock at <b>now(250)</b> trips PollingIntervalRule. In the lab, <span class="mono">scripts/seed.sh</span> plants exactly these, and you\'ll hunt them down yourself.'
@@ -1166,7 +1166,7 @@ function revealUpTo(slide,s){
     bind.innerHTML=broken?BROKEN:CLEAN;
     bind.classList.toggle('badb',broken);
     tile.classList.toggle('broken',broken);
-    dval.textContent=broken?'···':'−6.5 °C';
+    dval.textContent=broken?'···':'162.0 °C';
     clock.textContent=s>=4?'Clock · now(250)':'Clock · now(1000)';
     clock.classList.toggle('bad2',s>=4);
     lead.innerHTML=texts[s];

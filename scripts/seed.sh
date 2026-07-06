@@ -42,13 +42,13 @@ p.write_text(s)
 view = pathlib.Path(
     "projects/lab-project/com.inductiveautomation.perspective/views/pages/overview/view.json")
 s = view.read_text()
-# The Discharge tile's value used a clean runScript binding. Re-point it at a sibling
+# The Kiln tile's value used a clean runScript binding. Re-point it at a sibling
 # tile by a brittle *relative path* — to a component that no longer exists (someone
-# renamed "SuctionPressure" to "Suction"). This is the classic "renamed a component and
+# renamed "BagsPerMin" to "Bags"). This is the classic "renamed a component and
 # a binding silently broke" bug: it trips BOTH BadComponentReferenceRule (brittle '../'
 # traversal) AND ComponentReferenceValidationRule (the target doesn't resolve).
-s = s.replace("runScript('lab.display.format_reading', 0, -6.5, '°C')",
-              "{../../SuctionPressure.Value.props.text}", 1)
+s = s.replace("runScript('lab.display.format_reading', 0, 162.0, '°C')",
+              "{../../BagsPerMin.Value.props.text}", 1)
 # The Clock polls four times a second instead of once — PollingIntervalRule.
 s = s.replace("now(1000)", "now(250)", 1)
 # The Power KPI tile gets a snake_case rename — the classic "quick rename in the
@@ -80,9 +80,9 @@ YML
 cat <<'EOF'
 Seeded issues into the working tree:
   1. docker-compose.yml              — yamllint    (trailing whitespace)
-  2. scripts/scan.sh                     — shellcheck  (SC2086, unquoted variable)
+  2. scripts/scan.sh                 — shellcheck  (SC2086, unquoted variable)
   3. .github/workflows/example.yml   — actionlint  (deprecated actions/checkout@v2)
-  4. overview/view.json (Discharge)  — ign-lint    (brittle + dangling component reference)
+  4. overview/view.json (Kiln)       — ign-lint    (brittle + dangling component reference)
   5. overview/view.json (Clock)      — ign-lint    (poll faster than the 1000ms floor)
   6. overview/view.json (Power tile) — ign-lint    (snake_case component name)
   7. project.json                    — validate.sh (malformed JSON: trailing comma)

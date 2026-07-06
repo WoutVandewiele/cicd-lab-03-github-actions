@@ -53,24 +53,24 @@ actionlint flags `actions/checkout@v2` as too old to run on GitHub Actions.
 workflows aren't required.
 
 **4. Overview `view.json` — ign-lint brittle + dangling component reference (the headline
-finding).** `seed.sh` re-points the **Discharge** tile's value away from its clean
+finding).** `seed.sh` re-points the **Kiln** tile's value away from its clean
 `runScript('lab.display.format_reading', …)` binding and at a *sibling tile by a brittle
 relative path* — to a component that no longer exists:
 
 ```
-{../../SuctionPressure.Value.props.text}
+{../../BagsPerMin.Value.props.text}
 ```
 
 This is the classic "someone renamed a component and a binding silently broke" bug, and it
 trips **two** rules at once:
 - `BadComponentReferenceRule` (error) — the `../` traversal couples this binding to the
   view's structure; reorganise the tree and it breaks.
-- `ComponentReferenceValidationRule` (error) — `SuctionPressure` doesn't resolve to a real
-  component (it was renamed to `Suction`).
+- `ComponentReferenceValidationRule` (error) — `BagsPerMin` doesn't resolve to a real
+  component (it was renamed to `Bags`).
 
 Run: `ign-lint --config rule_config.json --files "projects/**/view.json"`.
 **Fix:** restore a real data binding (the original `runScript('lab.display.format_reading', 0,
--6.5, '°C')`). Teaching point: don't reach across the component tree by relative path — bind
+162.0, '°C')`). Teaching point: don't reach across the component tree by relative path — bind
 to a real data source, a `view.custom` property, or message handling.
 
 **5. Overview `view.json` — ign-lint `PollingIntervalRule` (runaway poll).** `seed.sh`
@@ -104,7 +104,7 @@ readability more than it helps.
 ### Clean end state
 
 After Part 1: trailing whitespace stripped; `scripts/scan.sh` variable re-quoted; `example.yml`
-fixed or deleted; the Discharge binding restored to its `runScript(...)` data source, the
+fixed or deleted; the Kiln binding restored to its `runScript(...)` data source, the
 Clock restored to `now(1000)`, and the Power tile renamed back to `Power`; the trailing
 comma removed from `project.json`; the `.yamllint.yml` comment extended. Every linter silent and `scripts/validate.sh` exits 0.
 
@@ -114,12 +114,14 @@ comma removed from `project.json`; the `.yamllint.yml` comment extended. Every l
   output and `scripts/validate.sh` exits 0 on the final state.
 - **Justified config changes.** If they disabled a `yamllint`/`ign-lint` rule, the commit
   message or config comment should explain why.
-- **No "fixed by deleting it" cheats.** Deleting the Clock, the Discharge binding, or the
+- **No "fixed by deleting it" cheats.** Deleting the Clock, the Kiln binding, or the
   Power tile to silence ign-lint is wrong — restore them; only the *reference*, the *poll
   rate*, and the *name* were broken, not the components. Removing `example.yml` is fine
   (it was optional).
 - **The view still loads.** Editing a binding is a `view.json` edit — confirm they didn't
-  break the JSON or leave a dangling reference.
+  break the JSON or leave a dangling reference. The slides ask them to prove it in the
+  gateway: `docker compose restart` (or `scripts/scan.sh` with an API key), then reload the
+  Overview page — a running gateway only picks up bind-mounted edits on a scan or restart.
 
 ### Stretch — pre-commit
 
