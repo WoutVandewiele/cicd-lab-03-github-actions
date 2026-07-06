@@ -124,7 +124,8 @@ scripts/seed.sh
 This plants a handful of issues into your working tree — at least one for every tool,
 including three realistic Ignition findings in the Perspective view: a **brittle, broken
 binding**, a **runaway poll rate**, and a **mis-named component**. Hunt them down with the
-linters. Reset to a clean tree
+linters — and resist `git diff`, which spoils every answer at once; reading the linters'
+output is the exercise. Reset to a clean tree
 any time with:
 
 ```bash
