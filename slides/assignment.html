@@ -254,14 +254,23 @@ body{
         <div class="step"><div class="ix t">4</div><div class="tx"><b>Reference reading</b> lives in <span class="inlinecode">docs/validation-and-linters.md</span> and <span class="inlinecode">docs/self-hosted-runners.md</span>: cheat sheets, not homework.</div></div>
       </div>
       <div>
-        <div class="code"><pre><span class="cm"># 2: linters — macOS</span>
-brew install shellcheck actionlint
-<span class="cm"># 2: linters — Debian/Ubuntu/WSL (no brew there)</span>
-sudo apt install shellcheck python3-venv
+        <div class="code"><pre><span class="cm"># 2: linters — Debian/Ubuntu/WSL</span>
+sudo apt update
+sudo apt install shellcheck python3-venv python3-pip
 <span class="cm">#    actionlint has no apt package: release binary →</span>
 <span class="cm">#    /usr/local/bin · one-liner in lab.md § Setup</span>
-<span class="cm"># 2: both platforms — venv, then the pinned tools</span>
+
+<span class="cm"># 2b: confirm Python is in range (ign-lint needs >=3.10,&lt;3.14)</span>
+python3 --version
+<span class="cm">#    if outside range, install a supported version, e.g. 3.13:</span>
+<span class="cm">#      sudo add-apt-repository ppa:deadsnakes/ppa</span>
+<span class="cm">#      sudo apt update &amp;&amp; sudo apt install python3.13 python3.13-venv</span>
+<span class="cm">#    then use python3.13 in place of python3 below</span>
+
+<span class="cm"># 2c: venv, then the pinned tools</span>
 python3 -m venv .venv &amp;&amp; source .venv/bin/activate
+python --version        <span class="cm"># verify it's 3.10-3.13 inside the venv</span>
+pip install --upgrade pip
 pip install yamllint==1.35.1 ign-lint==0.6.1
 
 <span class="cm"># 3: fork, from inside your clone (origin → your fork)</span>
