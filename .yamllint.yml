@@ -10,6 +10,9 @@ ignore: |
   .venv/
 
 rules:
+  # Compose files have legitimately long `environment:` lines (image tags, DB URLs,
+  # JVM flags) that gain nothing from wrapping — enforcing line-length here would
+  # noise-flood the report with false positives, so we disable it for this project.
   line-length: disable
   # Compose files use the shorthand "key: value" style; document-start is noise here.
   document-start: disable

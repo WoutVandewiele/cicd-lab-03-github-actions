@@ -167,7 +167,7 @@ body{
   <div class="cover">
     <div class="eyebrow">The assignment · breakout rooms · 60 min</div>
     <div class="big">Hunt the bugs, then <em>automate the hunt</em>.</div>
-    <div class="sub">Seven realistic bugs are planted in the Ignition project: a brittle binding, a runaway poll, broken JSON, and friends. First you hunt them down with the linters. Then you make sure nobody ever has to hunt by hand again: a GitHub Actions workflow in <em style="color:#fff;font-style:normal">your own repo</em>, ending in branch protection on <span class="mono" style="color:#dbe4f0">main</span> that rejects direct pushes and blocks a red PR.</div>
+    <div class="sub">Several bugs are planted in the Ignition project. First you hunt them down with the linters. Then you make sure nobody has to hunt by hand again using a GitHub Actions workflow, ending in branch protection on <span class="mono" style="color:#dbe4f0">main</span> that rejects direct pushes and blocks a red PR.</div>
     <div class="for">
       <span>Floating to help</span>
       <span class="pill"><b>Sam</b></span>
@@ -189,9 +189,6 @@ body{
     <div class="sechead"><span class="num">READ FIRST</span><div><div class="title">How this works</div></div></div>
     <ul class="checks" style="max-width:940px">
       <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Share your screen</b> in your breakout room. This is a "look over your shoulder" class, so we'll drop in where it's useful.</span></li>
-      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>The full script is <span class="inlinecode">exercises/lab.md</span>.</b> These slides are the map, that file is the territory. Keep it open next to your terminal.</span></li>
-      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Part 2 needs a repo you own</b> (admin rights for branch protection). You already forked it — just <b>enable Actions on the fork</b> before starting Part 2. Commands on the setup slide.</span></li>
-      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Don't peek at <span class="inlinecode">instructor-notes/lab-key.md</span></b> until you've genuinely tried. The diagnostic skill (run tool, read output, decide) is most of the lesson.</span></li>
       <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Try it without AI.</b> The goal is the toolbelt in your fingers, and you'll steer AI far better afterwards.</span></li>
     </ul>
     <div class="goal good-g">
@@ -220,13 +217,13 @@ body{
       <div class="pcard p2">
         <div class="pn">PART 2 · SOLO · YOUR OWN REPO</div>
         <h4>Make CI the gatekeeper</h4>
-        <p>Finish <span class="inlinecode">ci.yml</span>: path filters, compose check, a badge, then branch protection that <b>blocks a red PR</b>.</p>
+        <p>Finish <span class="inlinecode">ci.yml</span>: path filters, compose check, then branch protection that <b>blocks a red PR</b>.</p>
         <div class="gate">gate → docs-only PR skipped · red PR blocked</div>
       </div>
       <div class="pcard">
         <div class="pn">PART 3 · TOGETHER</div>
         <h4>Self-hosted runners</h4>
-        <p>Back in the main room: instructor demo of an ephemeral Docker runner + the security discussion. Hands-on comes in Labs 04 and 05.</p>
+        <p>Back in the main room: the idea, the one security rule, and the discussion — plus an <b>optional</b> hands-on (register an ephemeral runner, route a job, tear it down). Real hands-on comes in Labs 04-05.</p>
         <div class="gate">bring one concrete deploy of yours</div>
       </div>
     </div>
@@ -238,43 +235,82 @@ body{
   <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>Clean tree before CI</span></div>
 </section>
 
-<!-- 4 · SETUP -->
+<!-- 4 · SETUP · 1 · FORK -->
 <section class="slide">
   <div class="topbar">
     <div class="brandrow"><img class="logo-img" src="logos/OriginalDark.png" alt="Mustry Solutions"></div>
     <div class="stage">Setup · before Part 1</div>
   </div>
   <div class="body">
-    <div class="sechead"><span class="num warm">SETUP</span><div><div class="title">Gateway up, linters in, repo yours</div><div class="lead">Most of this happened in the We-do. Run through it to make sure nothing's missing.</div></div></div>
+    <div class="sechead"><span class="num warm">SETUP · 1</span><div><div class="title">First: your own fork, with Actions on</div><div class="lead">Fork the lab and clone it, then make it <b>yours</b>.</div></div></div>
+    <div class="cols2">
+      <div class="steps">
+        <div class="step"><div class="ix t">1</div><div class="tx"><b>Fork &amp; clone in one go.</b> From your course folder <span class="inlinecode">~/mustry-academy/</span>, <span class="inlinecode">gh repo fork … --clone</span> forks the lab to <i>your</i> account (if you haven't already) <b>and</b> clones your fork — <span class="inlinecode">origin</span> → your fork, <span class="inlinecode">upstream</span> → Mustry-Academy. Prefer the website? Press <b>Fork</b> on github.com, then <span class="inlinecode">git clone</span> your fork.</div></div>
+        <div class="step"><div class="ix t">2</div><div class="tx"><b>Point <span class="inlinecode">gh</span> at your fork:</b> <span class="inlinecode">gh repo set-default</span> so PRs target <b>your</b> fork, not the source. Check with <span class="inlinecode">git remote -v</span> — <span class="inlinecode">origin</span> must show <b>your username</b>.</div></div>
+        <div class="step"><div class="ix t">3</div><div class="tx"><b>Open it in VS Code</b> with <span class="inlinecode">code .</span> from inside the repo, then work from its integrated terminal.</div></div>
+        <div class="step"><div class="ix t">4</div><div class="tx"><b>Enable Actions on the fork.</b> Open its <b>Actions</b> tab on github.com and click <i>enable workflows</i> — forks start dormant, so until you do this your PRs run <b>no CI at all</b>.</div></div>
+      </div>
+      <div>
+        <div class="code"><pre><span class="cm"># 1: from your course folder, fork + clone in one go</span>
+cd ~/mustry-academy
+gh repo fork Mustry-Academy/cicd-lab-03-github-actions --clone
+<span class="cm">#    …or press "Fork" on github.com, then clone YOUR fork:</span>
+git clone git@github.com:&lt;you&gt;/cicd-lab-03-github-actions.git
+cd cicd-lab-03-github-actions
+
+<span class="cm"># 2: make gh target YOUR fork for PRs; check the remote</span>
+gh repo set-default &lt;you&gt;/cicd-lab-03-github-actions
+git remote -v          <span class="cm"># origin → your username? good.</span>
+
+<span class="cm"># 3: open in VS Code</span>
+code .
+
+<span class="cm"># 4: fork's Actions tab → enable workflows</span></pre></div>
+        <div class="goal warn-g" style="margin-top:18px">
+          <span class="badge">Don't skip step 4</span>
+          <p><b>Enable Actions on your fork</b> — its <b>Actions</b> tab → <i>"I understand my workflows, go ahead and enable them"</i>. This is the <b>most-forgotten step</b>: forks ship with workflows dormant, so until you click it your PRs run <b>no CI at all</b> and every check silently passes.</p>
+        </div>
+        <div class="goal" style="margin-top:14px">
+          <span class="badge">Why your own</span>
+          <p>Part 2 configures <b>branch protection</b> and merges PRs, so you need <b>admin rights</b>. Inside your own copy, you can do both freely.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>Setup 1 · your fork → gateway &amp; linters next</span></div>
+</section>
+
+<!-- 5 · SETUP · 2 · GATEWAY & LINTERS -->
+<section class="slide">
+  <div class="topbar">
+    <div class="brandrow"><img class="logo-img" src="logos/OriginalDark.png" alt="Mustry Solutions"></div>
+    <div class="stage">Setup · before Part 1</div>
+  </div>
+  <div class="body">
+    <div class="sechead"><span class="num warm">SETUP · 2</span><div><div class="title">Gateway up, linters in</div><div class="lead">Run through it to make sure nothing's missing.</div></div></div>
     <div class="cols2">
       <div class="steps">
         <div class="step"><div class="ix t">1</div><div class="tx"><b>Boot the gateway.</b> Run <span class="inlinecode">cp .env.example .env</span> then <span class="inlinecode">scripts/setup.sh</span>. Wait for RUNNING; open <span class="inlinecode">http://localhost:8088</span>. This is the lab's deployment environment: only <span class="inlinecode">./projects</span> is bind-mounted into it, so the files the linters check <b>are</b> the files the gateway runs. (<span class="inlinecode">scripts/teardown.sh</span> stops it.)</div></div>
-        <div class="step"><div class="ix t">2</div><div class="tx"><b>Install the linters</b> (see block). The venv sidesteps pip's <span class="inlinecode">externally-managed-environment</span> error; <span class="inlinecode">ign-lint</span> needs Python 3.10+. Skip brew's yamllint — the pinned pip version is the one CI uses.</div></div>
-        <div class="step"><div class="ix t">3</div><div class="tx"><b>Point at your own repo</b>, needed for Part 2's branch protection: you already forked and cloned it, so just <span class="inlinecode">set-default</span> to it, then <b>enable Actions</b> on the fork (its Actions tab — forks start with workflows dormant).</div></div>
-        <div class="step"><div class="ix t">4</div><div class="tx"><b>Reference reading</b> lives in <span class="inlinecode">docs/validation-and-linters.md</span> and <span class="inlinecode">docs/self-hosted-runners.md</span>: cheat sheets, not homework.</div></div>
+        <div class="step"><div class="ix t">2</div><div class="tx"><b>Install the linters</b> (see code block).</div></div>
+        <div class="step"><div class="ix t">3</div><div class="tx"><b>Reference reading (optional)</b> lives in <span class="inlinecode">docs/validation-and-linters.md</span> and <span class="inlinecode">docs/self-hosted-runners.md</span>: cheat sheets, not homework.</div></div>
       </div>
       <div>
-        <div class="code"><pre><span class="cm"># 2: linters — Debian/Ubuntu/WSL</span>
-sudo apt update
-sudo apt install shellcheck python3-venv python3-pip
+        <div class="code"><pre><span class="cm"># 1: boot the gateway — wait for RUNNING</span>
+cp .env.example .env
+scripts/setup.sh          <span class="cm"># → http://localhost:8088</span>
+
+<span class="cm"># 2: linters — macOS (bare python3 is 3.9, so get 3.12 too)</span>
+brew install shellcheck actionlint python@3.12
+<span class="cm"># 2: linters — Debian/Ubuntu/WSL (no brew there)</span>
+sudo apt install shellcheck python3-venv
 <span class="cm">#    actionlint has no apt package: release binary →</span>
 <span class="cm">#    /usr/local/bin · one-liner in lab.md § Setup</span>
-
-<span class="cm"># 2b: confirm Python is in range (ign-lint needs >=3.10,&lt;3.14)</span>
-python3 --version
-<span class="cm">#    if outside range, install a supported version, e.g. 3.13:</span>
-<span class="cm">#      sudo add-apt-repository ppa:deadsnakes/ppa</span>
-<span class="cm">#      sudo apt update &amp;&amp; sudo apt install python3.13 python3.13-venv</span>
-<span class="cm">#    then use python3.13 in place of python3 below</span>
-
-<span class="cm"># 2c: venv, then the pinned tools</span>
-python3 -m venv .venv &amp;&amp; source .venv/bin/activate
-python --version        <span class="cm"># verify it's 3.10-3.13 inside the venv</span>
-pip install --upgrade pip
+<span class="cm"># 2: venv on Python 3.10+ — macOS: python3.12 · Linux: python3</span>
+python3.12 -m venv .venv &amp;&amp; source .venv/bin/activate  <span class="cm"># Linux: python3</span>
 pip install yamllint==1.35.1 ign-lint==0.6.1</pre></div>
-        <div class="goal" style="margin-top:18px">
-          <span class="badge">Why your own</span>
-          <p>Part 2 configures <b>branch protection</b> and merges PRs, so you need <b>admin rights</b>. Inside your own copy, you can do both freely.</p>
+        <div class="goal warn-g" style="margin-top:18px">
+          <span class="badge">No python3.12?</span>
+          <p><b><span class="inlinecode">ign-lint</span> needs Python 3.10–3.13 (we standardize on 3.12).</b> If your WSL/Debian box doesn't have <span class="inlinecode">python3.12</span> and you can't install it, <b>skip ign-lint</b> — run the other four checks, and we'll skip its three Perspective-view findings (brittle binding, runaway poll, mis-named component).</p>
         </div>
         <div class="goal warn-g" style="margin-top:14px">
           <span class="badge">Port 8088 busy?</span>
@@ -283,32 +319,38 @@ pip install yamllint==1.35.1 ign-lint==0.6.1</pre></div>
       </div>
     </div>
   </div>
-  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>Setup → Part 1</span></div>
+  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>Setup 2 · gateway &amp; linters → Part 1</span></div>
 </section>
 
-<!-- 5 · PART 1 · SEED & HUNT -->
+<!-- 6 · PART 1 · SEED & HUNT -->
 <section class="slide">
   <div class="topbar">
     <div class="brandrow"><img class="logo-img" src="logos/OriginalDark.png" alt="Mustry Solutions"></div>
     <div class="stage">Solo · Part 1 · the hunt</div>
   </div>
   <div class="body">
-    <div class="sechead"><span class="num p1" style="background:var(--blue)">PART 1 · 1-3</span><div><div class="title">Seed the broken state, hunt every finding</div><div class="lead">At least one planted issue per tool, including a brittle broken binding, a runaway poll and a mis-named component in the Overview view.</div></div></div>
+    <div class="sechead"><span class="num p1" style="background:var(--blue)">PART 1 · 1-2</span><div><div class="title">Seed the broken state, hunt every finding</div><div class="lead">There is at least one planted issue per tool, including a brittle broken binding, a runaway poll and a mis-named component in the Overview perspective view.</div></div></div>
     <div class="cols2">
       <div class="steps">
         <div class="step"><div class="ix">1</div><div class="tx">Run <span class="inlinecode">scripts/seed.sh</span>. It plants the issues into your working tree and prints what it broke (files + tools, not fixes).</div></div>
-        <div class="step"><div class="ix">2</div><div class="tx">Run <b>all five checks</b> (see block) and <b>write down every finding</b>. Make a list: <i>what the tool flagged</i>, and in <i>which file</i>.</div></div>
-        <div class="step"><div class="ix">3</div><div class="tx">Spend the most time reading <b>ign-lint's</b> output. It fires <b>two rules on one binding</b>, plus a poll-rate finding and a naming finding. Work out <i>why</i> each rule exists before fixing anything.</div></div>
+        <div class="step"><div class="ix">2</div><div class="tx">Run <b>all five checks</b> (see code block) and <b>write down every finding</b>. Make a list: <i>what the tool flagged</i>, and in <i>which file</i>.</div></div>
       </div>
       <div>
-        <div class="code"><pre>scripts/seed.sh
+        <div class="code"><pre><span class="cm"># plant the seven bugs into your working tree</span>
+scripts/seed.sh
 
-yamllint -c .yamllint.yml .
-shellcheck scripts/*.sh
-actionlint
+<span class="cm"># optional — reload the gateway to view the broken</span>
+<span class="cm"># Overview view in the Designer (edits are bind-mounted)</span>
+docker compose restart
+
+<span class="cm"># run all five checks · note every finding + its file</span>
+yamllint -c .yamllint.yml . <span class="cm"># YAML style + syntax</span>
+shellcheck scripts/*.sh     <span class="cm"># shell-script bugs</span>
+actionlint                  <span class="cm"># Actions workflows</span>
+<span class="cm"># ign-lint — Perspective views, the one to linger on:</span>
 ign-lint --config rule_config.json \
   --files <span class="cmd2">"projects/**/view.json"</span>
-scripts/validate.sh</pre></div>
+scripts/validate.sh         <span class="cm"># JSON + code.py parses</span></pre></div>
         <div class="goal warn-g" style="margin-top:18px">
           <span class="badge">Escape hatch</span>
           <p>Made a mess? Reset to a clean tree any time: <span class="inlinecode">git restore . &amp;&amp; rm -f .github/workflows/example.yml</span>, then re-seed and start over. And resist <span class="inlinecode">git diff</span> — it spoils all seven answers at once; reading the <b>linters'</b> output is the exercise.</p>
@@ -319,20 +361,20 @@ scripts/validate.sh</pre></div>
   <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>Part 1 · hunt → fix next</span></div>
 </section>
 
-<!-- 6 · PART 1 · FIX & TUNE -->
+<!-- 7 · PART 1 · FIX & TUNE -->
 <section class="slide">
   <div class="topbar">
     <div class="brandrow"><img class="logo-img" src="logos/OriginalDark.png" alt="Mustry Solutions"></div>
     <div class="stage">Solo · Part 1 · fix &amp; tune</div>
   </div>
   <div class="body">
-    <div class="sechead"><span class="num">PART 1 · 4-7</span><div><div class="title">Fix everything, then make the config your own</div></div></div>
+    <div class="sechead"><span class="num">PART 1 · 3-6</span><div><div class="title">Fix everything, then make the config your own</div></div></div>
     <div class="cols2">
       <div class="steps">
-        <div class="step"><div class="ix">4</div><div class="tx"><b>Fix every finding.</b> For each, record: <i>what the tool flagged</i> · <i>why your fix is correct</i> · <i>what class of production bug it would catch</i>.</div></div>
-        <div class="step"><div class="ix">5</div><div class="tx"><b>Re-run every linter</b> until each is silent and <span class="inlinecode">scripts/validate.sh</span> exits 0.</div></div>
-        <div class="step"><div class="ix">6</div><div class="tx">Open <span class="inlinecode">.yamllint.yml</span>, where we disabled <span class="inlinecode">line-length</span>. <b>Extend the comment</b> explaining <i>why</i> (hint: long compose environment lines).</div></div>
-        <div class="step"><div class="ix">7</div><div class="tx"><b>Commit.</b> End state: a clean tree, every linter silent, validate green.</div></div>
+        <div class="step"><div class="ix">3</div><div class="tx"><b>Fix every finding.</b> For each, record: <i>what the tool flagged</i> · <i>why your fix is correct</i> · <i>what class of production bug it would catch</i>.</div></div>
+        <div class="step"><div class="ix">4</div><div class="tx"><b>Re-run every linter</b> until each is silent and <span class="inlinecode">scripts/validate.sh</span> exits 0.</div></div>
+        <div class="step"><div class="ix">5</div><div class="tx"><b>Read the config decision — a finding you <i>configure away</i>, not fix.</b> Part 1's real skill is deciding, per finding, whether to <i>fix</i> it, <i>mute the rule</i>, or <i>ignore</i> it. Open <span class="inlinecode">.yamllint.yml</span> and read the comment on <span class="inlinecode">line-length: disable</span>: Compose files have legitimately long <span class="inlinecode">environment:</span> lines, so we mute that rule <i>on purpose</i> — and document <i>why</i>, so the next reviewer sees judgment, not laziness. Nothing to change here; just see how a deliberate mute is recorded.</div></div>
+        <div class="step"><div class="ix">6</div><div class="tx"><b>Commit.</b> End state: a clean tree, every linter silent, validate green.</div></div>
       </div>
       <div>
         <div class="goal warn-g" style="margin-top:0">
@@ -341,7 +383,7 @@ scripts/validate.sh</pre></div>
         </div>
         <div class="goal good-g" style="margin-top:18px">
           <span class="badge">✅ Gate</span>
-          <p>Every linter silent + <span class="inlinecode">scripts/validate.sh</span> exits 0 <b>before</b> you start Part 2, otherwise your first CI run is red for yesterday's reasons.</p>
+          <p>Every linter silent + <span class="inlinecode">scripts/validate.sh</span> exits 0 <b>before</b> you start Part 2, otherwise your first CI run is red.</p>
         </div>
         <div class="goal" style="margin-top:18px">
           <span class="badge">Debrief fuel</span>
@@ -353,7 +395,7 @@ scripts/validate.sh</pre></div>
   <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>Gate green? → Part 2, in your own repo</span></div>
 </section>
 
-<!-- 7 · PART 2 · DIVIDER / STARTING POINT -->
+<!-- 8 · PART 2 · DIVIDER / STARTING POINT -->
 <section class="slide dark">
   <div class="topbar">
     <div class="on-dark brandrow"><img class="logo-img" src="logos/OriginalLight.png" alt="Mustry Solutions"></div>
@@ -362,39 +404,78 @@ scripts/validate.sh</pre></div>
   <div class="body">
     <div class="eyebrow">Part 2 · solo · your own repo</div>
     <div class="title" style="color:#fff;max-width:22ch">Make the workflow yours, and make it the gatekeeper</div>
-    <p class="lead">In the We-do you set the shipped answer aside — <span class="mono" style="color:#dbe4f0">git mv .github/workflows/ci.yml .github/ci-reference.yml</span> — and rebuilt the two-job skeleton below from scratch (full version in <span class="mono" style="color:#dbe4f0">exercises/lab.md</span>). Pick up from there:</p>
-    <div class="code" style="max-width:720px"><pre>name: CI
-on: [pull_request]            <span class="cm"># ← you'll refine this</span>
-permissions: {contents: read}
-jobs:
-  validate:  <span class="cm"># checkout → scripts/validate.sh</span>
-  lint:      <span class="cm"># checkout → setup-python "3.12" → pip install</span>
-             <span class="cm">#   yamllint · actionlint · shellcheck · ign-lint</span></pre></div>
-    <ul class="checks" style="margin-top:22px;max-width:900px">
-      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Steps 1-2:</b> path filters + compose validation.</span></li>
-      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Steps 3-4:</b> status badge + <b>branch protection on <span class="mono" style="color:#dbe4f0">main</span></b>: direct pushes rejected, red PRs blocked.</span></li>
-      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Step 5:</b> sanity check against the shipped <span class="mono" style="color:#dbe4f0">.github/workflows/ci.yml</span>.</span></li>
+    <ul class="checks" style="margin-top:26px;max-width:900px">
+      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Steps 0-2:</b> pick up the skeleton, add path filters + Compose validation.</span></li>
+      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Step 3:</b> <b>branch protection on <span class="mono" style="color:#dbe4f0">main</span></b> — direct pushes rejected, red PRs blocked.</span></li>
+      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Step 4:</b> sanity check against the shipped <span class="mono" style="color:#dbe4f0">.github/workflows/ci.yml</span>.</span></li>
     </ul>
   </div>
-  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>Part 2 · steps 1 → 5</span></div>
+  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>Part 2 · steps 1 → 4</span></div>
 </section>
 
-<!-- 8 · PART 2 · STEPS 1-2 -->
+<!-- 9 · PART 2 · STEP 0 · SKELETON -->
+<section class="slide">
+  <div class="topbar">
+    <div class="brandrow"><img class="logo-img" src="logos/OriginalDark.png" alt="Mustry Solutions"></div>
+    <div class="stage">Part 2 · step 0 · the skeleton</div>
+  </div>
+  <div class="body">
+    <div class="sechead"><span class="num phase2">PART 2 · 0</span><div><div class="title">Create the workflow from the skeleton</div><div class="lead">The repo ships the finished workflow. One script sets it aside and scaffolds a bare starting point — so your typing goes into the checks that matter, not the boilerplate.</div></div></div>
+    <div class="cols2">
+      <div class="steps">
+        <div class="step"><div class="ix p">0</div><div class="tx"><b>Run <span class="inlinecode">scripts/prepare-part2.sh</span>.</b> It announces each step as it does two mechanical things: sets the shipped answer aside (<span class="inlinecode">git mv ci.yml → .github/ci-reference.yml</span>, your reference for step 4) and drops a bare two-job skeleton into <span class="inlinecode">.github/workflows/ci.yml</span>.</div></div>
+        <div class="step"><div class="ix p">0</div><div class="tx"><b>Open that skeleton</b> (at right): a <span class="inlinecode">validate</span> job and a <span class="inlinecode">lint</span> job, each just <span class="inlinecode">checkout</span> + <b>TODOs</b>. The structure is given; the real steps are yours to type across steps 1-2.</div></div>
+        <div class="step"><div class="ix p">0</div><div class="tx">Rather do it by hand? The script only runs the <span class="inlinecode">git mv</span> and writes the file below — skip it and type both yourself if you prefer.</div></div>
+      </div>
+      <div>
+        <div class="code"><pre><span class="cm"># prepare-part2.sh sets the shipped answer aside…</span>
+git mv .github/workflows/ci.yml .github/ci-reference.yml
+
+<span class="cm"># …then scaffolds .github/workflows/ci.yml:</span>
+name: CI
+on: [pull_request]            <span class="cm"># TODO 1: paths + push</span>
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      <span class="cm"># TODO: run scripts/validate.sh</span>
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      <span class="cm"># TODO 0: setup-python 3.12 + pip install pins</span>
+      <span class="cm"># TODO: yamllint·actionlint·shellcheck·ign-lint</span>
+      <span class="cm"># TODO 2: docker compose config -q</span></pre></div>
+        <div class="goal" style="margin-top:16px">
+          <span class="badge">Why scaffold, not copy?</span>
+          <p>The boilerplate (job names, <span class="inlinecode">checkout</span>) is noise; the <b>checks</b> are the lesson. You still write every linter step by hand — <span class="inlinecode">ci-reference.yml</span> is the answer key you earn, then check against in step 4.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>Part 2 · step 0 · skeleton → refine next</span></div>
+</section>
+
+<!-- 10 · PART 2 · STEPS 1-2 · REFINE -->
 <section class="slide">
   <div class="topbar">
     <div class="brandrow"><img class="logo-img" src="logos/OriginalDark.png" alt="Mustry Solutions"></div>
     <div class="stage">Part 2 · steps 1-2</div>
   </div>
   <div class="body">
-    <div class="sechead"><span class="num phase2">PART 2 · 1-2</span><div><div class="title">Path filters &amp; compose validation</div><div class="lead">Don't spin up two VMs to lint files a PR never touched.</div></div></div>
+    <div class="sechead"><span class="num phase2">PART 2 · 1-2</span><div><div class="title">Refine it: path filters &amp; Compose</div><div class="lead">Don't spin up two VMs to lint files a PR never touched.</div></div></div>
     <div class="cols2">
       <div class="steps">
-        <div class="step"><div class="ix p">1</div><div class="tx">Add the <span class="inlinecode">paths:</span> filter (see block) plus a <span class="inlinecode">push: branches: [main]</span> backstop trigger.</div></div>
-        <div class="step"><div class="ix p">1</div><div class="tx"><b>Prove it:</b> open a PR that touches <b>only</b> <span class="inlinecode">README.md</span> → the workflow must be <b>skipped</b>, not run-and-passed. Check the PR's checks panel. Keep that PR open — it springs a trap in step 4.</div></div>
+        <div class="step"><div class="ix p">1</div><div class="tx">Add the <span class="inlinecode">paths:</span> filter plus a <span class="inlinecode">push: branches: [main]</span> backstop trigger (see code block).</div></div>
+        <div class="step"><div class="ix p">1</div><div class="tx"><b>Prove it works:</b> open a PR that touches <b>only</b> <span class="inlinecode">README.md</span> → the workflow must be <b>skipped</b>, not run-and-passed. Check the PR's checks panel.</div></div>
         <div class="step"><div class="ix p">2</div><div class="tx">Add <span class="inlinecode">docker compose config -q</span> as a final step of the <b>lint</b> job. It catches Compose-level issues yamllint can't see: undefined services, port-string typos, malformed env maps.</div></div>
       </div>
       <div>
-        <div class="code"><pre>on:
+        <div class="code"><pre><span class="cm"># 1: refine the trigger — paths + push backstop</span>
+on:
   pull_request:
     paths:
       - <span class="cmd2">"projects/**"</span>
@@ -406,7 +487,7 @@ jobs:
   push:
     branches: [main]
 
-<span class="cm"># lint job, final step:</span>
+<span class="cm"># 2: lint job, final step:</span>
       - run: docker compose config -q</pre></div>
         <div class="goal warn-g" style="margin-top:16px">
           <span class="badge">Filter discipline</span>
@@ -415,43 +496,54 @@ jobs:
       </div>
     </div>
   </div>
-  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>Part 2 · steps 1-2 of 5</span></div>
+  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>Part 2 · steps 1-2 of 4</span></div>
 </section>
 
-<!-- 9 · PART 2 · STEPS 3-5 -->
+<!-- 11 · PART 2 · STEPS 3-4 -->
 <section class="slide">
   <div class="topbar">
     <div class="brandrow"><img class="logo-img" src="logos/OriginalDark.png" alt="Mustry Solutions"></div>
-    <div class="stage">Part 2 · steps 3-5 · the gate</div>
+    <div class="stage">Part 2 · steps 3-4 · the gate</div>
   </div>
   <div class="body">
-    <div class="sechead"><span class="num phase2">PART 2 · 3-5</span><div><div class="title">Badge, protect <span class="mono" style="font-size:30px">main</span>, then try to break in</div></div></div>
+    <div class="sechead"><span class="num phase2">PART 2 · 3-4</span><div><div class="title">Protect <span class="mono" style="font-size:30px">main</span>, then try to break in</div></div></div>
     <div class="cols2">
       <div class="steps">
-        <div class="step"><div class="ix p">3</div><div class="tx"><b>Status badge</b> at the top of <span class="inlinecode">README.md</span>: green at a glance. Copy the markdown line from <span class="inlinecode">lab.md</span> step 3.</div></div>
-        <div class="step"><div class="ix p">4</div><div class="tx"><b>Protect <span class="inlinecode">main</span></b>: Settings → Branches → add a rule with the <b>four ticks</b> in the block. Grant <b>no bypass</b>: it's your repo, and a wall you can step over teaches you nothing.</div></div>
-        <div class="step"><div class="ix p">4</div><div class="tx"><b>Try the forbidden route:</b> commit straight to <span class="inlinecode">main</span> and push (see block). <b>GitHub rejects the push.</b> Direct commits to <span class="inlinecode">main</span> are dead.</div></div>
-        <div class="step"><div class="ix p">4</div><div class="tx"><b>Now the proper route:</b> the same change on a branch, open a PR, wait for <b><span class="inlinecode">lint</span></b> and <b><span class="inlinecode">validate</span></b> to go green, merge. The merge button is now the only door in.</div></div>
-        <div class="step"><div class="ix p">4</div><div class="tx"><b>Break it on purpose:</b> re-run <span class="inlinecode">scripts/seed.sh</span> (or just set the Clock to <span class="inlinecode">now(250)</span> by hand), commit on a branch, open a PR → <b>confirm GitHub blocks the merge</b>. Fix <i>forward</i> (e.g. <span class="inlinecode">now(1500)</span>, not an exact revert — an empty diff re-triggers nothing), re-push, watch it go green.</div></div>
-        <div class="step"><div class="ix p">4</div><div class="tx"><b>The trap you set:</b> your docs-only PR from step 1 now hangs on <i>"Expected — waiting for status"</i> — a skipped required check never reports, so it never passes. Not a bug in your workflow; <span class="inlinecode">lab.md</span> explains it, and the no-op twin fix is a stretch goal.</div></div>
-        <div class="step"><div class="ix p">5</div><div class="tx"><b>Sanity check:</b> your workflow should structurally match the reference you set aside, <span class="inlinecode">.github/ci-reference.yml</span>. Walkthrough in <span class="inlinecode">instructor-notes/lab-key.md</span>.</div></div>
+        <div class="step"><div class="ix p">3</div><div class="tx"><b>Protect <span class="inlinecode">main</span></b>: Settings → Branches → add a rule with the <b>four ticks</b> in the block. Grant <b>no bypass</b>: it's your repo, and a wall you can step over teaches you nothing.</div></div>
+        <div class="step"><div class="ix p">3</div><div class="tx"><b>Try the forbidden route:</b> commit straight to <span class="inlinecode">main</span> and push (see code block). <b>GitHub rejects the push.</b> Direct commits to <span class="inlinecode">main</span> are dead.</div></div>
+        <div class="step"><div class="ix p">3</div><div class="tx"><b>Now the proper route:</b> the same change on a branch, open a PR, wait for <b><span class="inlinecode">lint</span></b> and <b><span class="inlinecode">validate</span></b> to go green, merge. The merge button is now the only door in.</div></div>
+        <div class="step"><div class="ix p">3</div><div class="tx"><b>Break it on purpose:</b> re-run <span class="inlinecode">scripts/seed.sh</span> (or just set the Clock to <span class="inlinecode">now(250)</span> by hand), commit on a branch, open a PR → <b>confirm GitHub blocks the merge</b>. Fix <i>forward</i> (e.g. <span class="inlinecode">now(1500)</span>, not an exact revert — an empty diff re-triggers nothing), re-push, watch it go green.</div></div>
+        <div class="step"><div class="ix p">4</div><div class="tx"><b>Sanity check:</b> your workflow should structurally match the reference you set aside, <span class="inlinecode">.github/ci-reference.yml</span>.</div></div>
       </div>
       <div>
-        <div class="code"><pre><span class="cm"># 4: the rule on main (Settings → Branches)</span>
-[✓] Require a pull request before merging  <span class="cm"># no direct commits</span>
-[✓] Require status checks to pass          <span class="cm"># select lint + validate</span>
-[✓] Block force pushes                     <span class="cm"># no rewriting history</span>
-[✓] Restrict deletions                     <span class="cm"># main can't be deleted</span>
+        <div class="code"><pre><span class="cm"># 3a · protect main — Settings → Branches (UI)</span>
+[✓] Require a pull request before merging
+[✓] Require status checks to pass    <span class="cm"># pick lint + validate</span>
+[✓] Block force pushes
+[✓] Restrict deletions
 
-<span class="cm"># the forbidden route: watch it bounce</span>
+<span class="cm"># 3b · forbidden route → bounces</span>
 git switch main
 git commit --allow-empty -m <span class="cmd2">"test: direct to main"</span>
-git push                     <span class="bad"># → rejected: protected branch</span>
+git push                    <span class="bad"># → rejected: protected</span>
 
-<span class="cm"># the proper route: branch → PR → green → merge</span>
+<span class="cm"># 3c · proper route → PR → green → merge</span>
 git switch -c fix/proper-route
+git commit --allow-empty -m <span class="cmd2">"test: proper route"</span>
 git push -u origin fix/proper-route
-gh pr create --fill</pre></div>
+gh pr create --fill         <span class="cm"># base = your fork · main</span>
+gh pr merge --merge         <span class="cm"># unlocks once green</span>
+
+<span class="cm"># 3d · break it on purpose, then fix FORWARD</span>
+git switch -c fix/regression   <span class="cm"># then set Clock → now(250)</span>
+git commit -am <span class="cmd2">"test: reintroduce a bug"</span>
+git push -u origin fix/regression
+gh pr create --fill         <span class="bad"># → merge blocked: red</span>
+git commit -am <span class="cmd2">"fix: now(1500)"</span> &amp;&amp; git push   <span class="cm"># → green</span>
+
+<span class="cm"># 4 · sanity: diff vs the reference you set aside</span>
+git diff --no-index \
+  .github/ci-reference.yml .github/workflows/ci.yml</pre></div>
         <div class="goal good-g" style="margin-top:16px">
           <span class="badge">✅ The moment</span>
           <p>The whole lab in two screenshots: a direct push <b>rejected at the command line</b>, and a red PR with a <b>disabled merge button</b>. "Please run the linters" just became "<b>you cannot merge</b>."</p>
@@ -459,77 +551,146 @@ gh pr create --fill</pre></div>
       </div>
     </div>
   </div>
-  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>Part 2 · steps 3-5 of 5</span></div>
+  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>Part 2 · steps 3-4 of 4</span></div>
 </section>
 
-<!-- 10 · PART 3 · BACK TOGETHER -->
+<!-- 12 · PART 3 · CONCEPT + DISCUSSION -->
 <section class="slide dark">
   <div class="topbar">
     <div class="on-dark brandrow"><img class="logo-img" src="logos/OriginalLight.png" alt="Mustry Solutions"></div>
     <div class="stage on-dark">Together · Part 3</div>
   </div>
   <div class="body">
-    <div class="eyebrow">Part 3 · back in the main room · short demo + discussion</div>
-    <div class="title" style="color:#fff;max-width:22ch">Self-hosted runners: watch, then argue</div>
-    <p class="lead">Instructor demo: an <b style="color:#fff">ephemeral Docker runner</b> registers against a repo, one job routes to it with <span class="mono" style="color:#dbe4f0">runs-on: [self-hosted, local-lab03]</span>, and you watch it execute in <span class="mono" style="color:#dbe4f0">docker logs</span>. Hands-on comes in Labs 04 and 05.</p>
-    <ul class="checks" style="max-width:960px;margin-top:20px">
-      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Watch for:</b> the short-lived <b>registration token</b> (via <span class="mono" style="color:#dbe4f0">gh api</span>), the runner appearing in <i>Settings → Actions → Runners</i>, "Listening for Jobs" in the logs, and the runner <b>terminating itself</b> after one job (<span class="mono" style="color:#dbe4f0">EPHEMERAL=true</span>).</span></li>
-      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Watch for the gotcha:</b> the runner only has what you put on it, with no preinstalled <span class="mono" style="color:#dbe4f0">shellcheck</span>. "Works on ubuntu-latest" is an assumption, not a law.</span></li>
-      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Discussion, come with an answer:</b> which of <b>your</b> deploys would need a self-hosted runner, and <i>why specifically</i>? ("Our gateway is behind the customer's VPN; GitHub-hosted physically can't reach it" beats "maybe.")</span></li>
+    <div class="eyebrow">Part 3 · back in the main room · the idea, then optional hands-on</div>
+    <div class="title" style="color:#fff;max-width:24ch">Self-hosted runners: when you need one, and the one rule</div>
+    <p class="lead">A self-hosted runner is a machine <b style="color:#fff">you own</b> that polls GitHub for jobs and runs them on your side of the network. Real hands-on comes in <b style="color:#fff">Labs 04-05</b> (deploying to a gateway often needs one) — here, get the idea and, if you like, an <b style="color:#fff">optional</b> try-it-yourself on the next three slides.</p>
+    <ul class="checks" style="max-width:980px;margin-top:18px">
+      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>When you reach for one:</b> the target is <b>unreachable from GitHub's cloud</b> — an Ignition gateway behind a firewall or customer VPN (the big one), plus compliance / data-residency or real hardware. Otherwise <span class="mono" style="color:#dbe4f0">ubuntu-latest</span> is fine.</span></li>
+      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>The one rule:</b> a runner executes <i>arbitrary</i> workflow code on your machine — <b>never attach one to a public repo that accepts fork PRs</b>. A malicious PR would run on your network. Ephemeral runners + private / trusted repos only.</span></li>
+      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span><b>Discussion — come with an answer:</b> which of <b>your</b> deploys would need a self-hosted runner, and <i>why specifically</i>? ("Our gateway is behind the customer's VPN; GitHub-hosted physically can't reach it" beats "maybe.")</span></li>
     </ul>
-    <div class="goal" style="background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.14);border-left-color:var(--warn)">
-      <span class="badge" style="background:var(--warn)">If you try it later</span>
-      <p style="color:#c4cfde">The full how-to is in <span class="mono" style="color:#dbe4f0">docs/self-hosted-runners.md</span>. Cleanup is part of the exercise: revert <span class="mono" style="color:#dbe4f0">runs-on</span>, stop the runner, confirm it's gone from the Runners list, and <b style="color:#fff">revoke the PAT</b>.</p>
+    <div class="goal" style="background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.14);border-left-color:var(--teal)">
+      <span class="badge" style="background:var(--teal)">Optional next</span>
+      <p style="color:#c4cfde">The three slides that follow are a hands-on you <b style="color:#fff">may</b> do: register an ephemeral runner, route one job to it, then tear it down. Full how-to in <span class="mono" style="color:#dbe4f0">docs/self-hosted-runners.md</span>.</p>
     </div>
   </div>
-  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>Part 3 · demo + discussion → stretch or wrap-up</span></div>
+  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>Part 3 · concept + discussion → optional hands-on</span></div>
 </section>
 
-<!-- 10b · STRETCH 0 · RUN A SELF-HOSTED RUNNER -->
+<!-- 13 · PART 3 · OPTIONAL HANDS-ON 1 · REGISTER -->
 <section class="slide">
   <div class="topbar">
     <div class="brandrow"><img class="logo-img" src="logos/OriginalDark.png" alt="Mustry Solutions"></div>
-    <div class="stage">Optional stretch · try it yourself</div>
+    <div class="stage">Part 3 · optional hands-on · try it yourself</div>
   </div>
   <div class="body">
-    <div class="sechead"><span class="num warm">OPTIONAL · 0</span><div><div class="title">Stretch 0: register a runner, run a job on your own machine</div><div class="lead">You watched the demo. Now do it in your fork: an <b>ephemeral Docker runner</b> claims one job and terminates. Full how-to in <span class="inlinecode">docs/self-hosted-runners.md</span>.</div></div></div>
+    <div class="sechead"><span class="num warm">HANDS-ON · 1</span><div><div class="title">Register an ephemeral runner</div><div class="lead"><b>Optional</b> — for the muscle memory. Read the go/no-go first: this is safe <i>only</i> because it's ephemeral, manually triggered, and on your throwaway fork.</div></div></div>
     <div class="cols2">
       <div class="steps">
-        <div class="step"><div class="ix t">1</div><div class="tx"><b>Mint a short-lived token</b> and <b>start the runner</b> (see block). It registers against <i>your</i> fork, prints "Listening for Jobs", and appears in <i>Settings → Actions → Runners</i>. Needs Docker running.</div></div>
-        <div class="step"><div class="ix t">2</div><div class="tx"><b>Dispatch the job.</b> The repo ships <span class="inlinecode">.github/workflows/self-hosted-demo.yml</span> (manual-only, <span class="inlinecode">runs-on: [self-hosted, local-lab03]</span>). Fire it with <span class="inlinecode">gh workflow run</span> and watch it execute in <span class="inlinecode">docker logs</span>, not on GitHub's infra.</div></div>
-        <div class="step"><div class="ix t">3</div><div class="tx"><b>Meet the gotcha.</b> The last step probes for <span class="inlinecode">shellcheck</span>. Your bare runner doesn't have it: "works on ubuntu-latest" was an assumption. The runner has only what you put on it.</div></div>
-        <div class="step"><div class="ix t">4</div><div class="tx"><b>Clean up</b> (part of the exercise). Ephemeral + <span class="inlinecode">--rm</span> means it self-removes after one job; confirm it's gone from the Runners list. Any PAT you minted: <b>revoke it</b>.</div></div>
+        <div class="step"><div class="ix t">1</div><div class="tx"><b>Prereqs:</b> Docker running, <span class="inlinecode">gh</span> logged in with <b>admin</b> on your fork. Open the fork's <span class="inlinecode">Settings → Actions → Runners</span> tab — empty for now.</div></div>
+        <div class="step"><div class="ix t">2</div><div class="tx"><b>Mint a registration token</b> — short-lived, repo-scoped, via <span class="inlinecode">gh api</span> (uses your existing <span class="inlinecode">gh</span> auth; expires on its own in ~1 hour).</div></div>
+        <div class="step"><div class="ix t">3</div><div class="tx"><b>Start the runner container.</b> Labels <span class="inlinecode">self-hosted,local-lab03</span> are how a job finds it; <span class="inlinecode">EPHEMERAL=true</span> means <b>one job, then it exits</b>.</div></div>
+        <div class="step"><div class="ix t">4</div><div class="tx"><b>Confirm it registered:</b> refresh the Runners tab (it appears, "Idle") and watch the logs print <b>"Listening for Jobs"</b>.</div></div>
       </div>
       <div>
-        <div class="code"><pre><span class="cm"># 1: short-lived registration token (your fork)</span>
-export RUNNER_TOKEN=<span class="cmd2">"$(gh api -X POST \
-  repos/&lt;you&gt;/cicd-lab-03-github-actions/actions/runners/registration-token \
-  --jq .token)"</span>
+        <div class="code"><pre><span class="cm"># 2: short-lived registration token</span>
+export RUNNER_TOKEN="$(gh api -X POST \
+  repos/&lt;you&gt;/&lt;repo&gt;/actions/runners/registration-token \
+  --jq .token)"
 
+<span class="cm"># 3: start the ephemeral runner</span>
 docker run -d --rm --name lab03-runner \
-  -e REPO_URL=<span class="cmd2">"https://github.com/&lt;you&gt;/cicd-lab-03-github-actions"</span> \
-  -e RUNNER_TOKEN=<span class="cmd2">"$RUNNER_TOKEN"</span> \
-  -e LABELS=<span class="cmd2">"self-hosted,local-lab03"</span> \
+  -e REPO_URL="https://github.com/&lt;you&gt;/&lt;repo&gt;" \
+  -e RUNNER_TOKEN="$RUNNER_TOKEN" \
+  -e LABELS="self-hosted,local-lab03" \
   -e EPHEMERAL=true \
-  -v /var/run/docker.sock:/var/run/docker.sock \
   myoung34/github-runner:latest
 
-docker logs -f lab03-runner   <span class="cm"># wait for "Listening for Jobs"</span>
-
-<span class="cm"># 2: dispatch the job at your local runner</span>
-gh workflow run self-hosted-demo.yml
-<span class="cm"># → the job runs in docker logs, then the runner exits</span></pre></div>
+<span class="cm"># 4: watch for "Listening for Jobs"</span>
+docker logs -f lab03-runner</pre></div>
         <div class="goal warn-g" style="margin-top:16px">
-          <span class="badge">The one rule</span>
-          <p>A self-hosted runner runs <b>arbitrary workflow code</b> on a machine inside your network. <b>Never</b> attach one to a <b>public</b> repo that takes <b>fork PRs</b>: a malicious PR runs on your box. Ephemeral runners, trusted repos.</p>
+          <span class="badge">Go / no-go</span>
+          <p><b>Safe here</b> because the runner is ephemeral, the job is <span class="inlinecode">workflow_dispatch</span> (no fork PR can trigger it), it's your throwaway fork, and you tear it down on slide 3. <b>Never</b> run this on a repo you care about.</p>
         </div>
       </div>
     </div>
   </div>
-  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>Stretch 0 · self-hosted runner · optional</span></div>
+  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>Part 3 · optional hands-on 1 of 3 · register</span></div>
 </section>
 
-<!-- 11 · STRETCH 1 · PRE-COMMIT -->
+<!-- 14 · PART 3 · OPTIONAL HANDS-ON 2 · ROUTE & GOTCHA -->
+<section class="slide">
+  <div class="topbar">
+    <div class="brandrow"><img class="logo-img" src="logos/OriginalDark.png" alt="Mustry Solutions"></div>
+    <div class="stage">Part 3 · optional hands-on · try it yourself</div>
+  </div>
+  <div class="body">
+    <div class="sechead"><span class="num warm">HANDS-ON · 2</span><div><div class="title">Route one job — watch it miss a tool</div><div class="lead">The repo ships a manual workflow that targets your runner by label. Dispatch it, then flip to the logs and watch it run on your own machine.</div></div></div>
+    <div class="cols2">
+      <div class="steps">
+        <div class="step"><div class="ix t">1</div><div class="tx"><b>Use the shipped workflow.</b> The repo already has <span class="inlinecode">.github/workflows/self-hosted-demo.yml</span> — <span class="inlinecode">runs-on: [self-hosted, local-lab03]</span> routes it to your container, and <span class="inlinecode">workflow_dispatch</span> means only <i>you</i> can trigger it. Nothing to write.</div></div>
+        <div class="step"><div class="ix t">2</div><div class="tx"><b>Dispatch it:</b> <span class="inlinecode">gh workflow run self-hosted-demo.yml</span>, then switch to the <span class="inlinecode">docker logs</span> terminal — the steps execute <b>live, locally</b>.</div></div>
+        <div class="step"><div class="ix t">3</div><div class="tx"><b>The gotcha:</b> the <span class="inlinecode">shellcheck</span> step <b>fails — command not found</b>. The runner only has what <i>you</i> put on it; "works on <span class="inlinecode">ubuntu-latest</span>" was an assumption GitHub's image quietly satisfied.</div></div>
+        <div class="step"><div class="ix t">4</div><div class="tx"><b>Ephemeral payoff:</b> one job done, the container exits (<span class="inlinecode">--rm</span>) and the runner <b>drops off the Runners tab</b> on its own.</div></div>
+      </div>
+      <div>
+        <div class="code"><pre><span class="cm"># the repo ships this — you just dispatch it:</span>
+<span class="cm">#   .github/workflows/self-hosted-demo.yml</span>
+on: workflow_dispatch         <span class="cm"># manual only — never a PR</span>
+jobs:
+  hello-from-my-machine:
+    runs-on: [self-hosted, local-lab03]
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "ran on $(hostname)"
+      - run: shellcheck scripts/*.sh   <span class="cm"># ← bare runner lacks it</span>
+
+<span class="cm"># dispatch it, then watch the docker logs terminal:</span>
+gh workflow run self-hosted-demo.yml</pre></div>
+        <div class="goal warn-g" style="margin-top:16px">
+          <span class="badge">The point</span>
+          <p>The failure <b>is</b> the lesson — don't fix it. Self-hosted means <i>you</i> own the toolchain: install it on the host, or in the workflow. Labs 04-05 do this for real against a gateway.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>Part 3 · optional hands-on 2 of 3 · route + gotcha</span></div>
+</section>
+
+<!-- 15 · PART 3 · OPTIONAL HANDS-ON 3 · CLEANUP -->
+<section class="slide">
+  <div class="topbar">
+    <div class="brandrow"><img class="logo-img" src="logos/OriginalDark.png" alt="Mustry Solutions"></div>
+    <div class="stage">Part 3 · optional hands-on · leave no trace</div>
+  </div>
+  <div class="body">
+    <div class="sechead"><span class="num warm">HANDS-ON · 3</span><div><div class="title">Tear it down — cleanup is the exercise</div><div class="lead">A lingering runner or token is a standing risk. If you did the hands-on, these steps are <b>not</b> optional.</div></div></div>
+    <div class="cols2">
+      <div class="steps">
+        <div class="step"><div class="ix t">1</div><div class="tx"><b>The workflow stays</b> — <span class="inlinecode">self-hosted-demo.yml</span> is <span class="inlinecode">workflow_dispatch</span>-only, so it never fires unless you dispatch it. Nothing to delete; the <b>runner</b> is what you tear down.</div></div>
+        <div class="step"><div class="ix t">2</div><div class="tx"><b>Confirm the runner is gone</b> from <span class="inlinecode">Settings → Actions → Runners</span>. Ephemeral already exited after its one job; if one lingers "Offline", remove it by hand.</div></div>
+        <div class="step"><div class="ix t">3</div><div class="tx"><b>Kill the container</b> if it's somehow still up: <span class="inlinecode">docker rm -f lab03-runner</span>. The <span class="inlinecode">gh</span> registration token auto-expires; if you minted a classic <b>PAT</b>, delete it now.</div></div>
+        <div class="step"><div class="ix t">4</div><div class="tx"><b>That's the whole loop:</b> register → route → run → tear down. In Labs 04-05 you'll point a runner at a real gateway and actually deploy.</div></div>
+      </div>
+      <div>
+        <div class="code"><pre><span class="cm"># the runner is what you tear down —</span>
+<span class="cm"># the workflow is manual-only, leave it:</span>
+docker rm -f lab03-runner   <span class="cm"># no-op if it already exited</span>
+
+<span class="cm"># then, on github.com:</span>
+<span class="cm">#  · Settings → Actions → Runners → none left</span>
+<span class="cm">#  · Settings → Developer settings → revoke any PAT</span></pre></div>
+        <div class="goal good-g" style="margin-top:16px">
+          <span class="badge">✅ Leave no runner behind</span>
+          <p>An abandoned self-hosted runner on a public repo is exactly the fork-PR footgun from the rule. Cleaning up <i>is</i> the security lesson, not an afterthought.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>Part 3 · optional hands-on 3 of 3 · cleanup → stretch or wrap-up</span></div>
+</section>
+
+<!-- 16 · STRETCH 1 · PRE-COMMIT -->
 <section class="slide">
   <div class="topbar">
     <div class="brandrow"><img class="logo-img" src="logos/OriginalDark.png" alt="Mustry Solutions"></div>
@@ -563,20 +724,20 @@ git commit -am <span class="cmd2">"test: should be blocked"</span>
   <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>Stretch 1 of 2 · optional</span></div>
 </section>
 
-<!-- 12 · STRETCH 2 · MATRIX + PULL_REQUEST_TARGET -->
+<!-- 17 · STRETCH 2 · MATRIX + PULL_REQUEST_TARGET -->
 <section class="slide">
   <div class="topbar">
     <div class="brandrow"><img class="logo-img" src="logos/OriginalDark.png" alt="Mustry Solutions"></div>
     <div class="stage">Optional stretch</div>
   </div>
   <div class="body">
-    <div class="sechead"><span class="num phase2">OPTIONAL · 2</span><div><div class="title">Stretch 2: three small workflow extras</div><div class="lead">Independent extras from <span class="inlinecode">exercises/lab.md</span>: do any, all, or none.</div></div></div>
+    <div class="sechead"><span class="num phase2">OPTIONAL · 2</span><div><div class="title">Stretch 2: a matrix, a footgun, and a SHA pin</div><div class="lead">Three independent extras from <span class="inlinecode">exercises/lab.md</span>: do any, all, or none.</div></div></div>
     <div class="cols2">
       <div>
         <div class="steps">
           <div class="step"><div class="ix p">A</div><div class="tx"><b>Matrix ign-lint over individual views</b> so each view surfaces as its own check. One entry today, but it's the pattern that scales as the HMI grows: it isolates <i>which</i> view broke, not speed.</div></div>
-          <div class="step"><div class="ix p">B</div><div class="tx"><b>Cancel superseded runs.</b> Add a workflow-level <span class="inlinecode">concurrency</span> group keyed on the ref so a fresh push <b>cancels the in-flight run</b> on the same branch, instead of both burning minutes to the end.</div></div>
-          <div class="step"><div class="ix p">C</div><div class="tx"><b>Pin actions by SHA.</b> Swap one <span class="inlinecode">@v4</span> tag for its full commit SHA. A tag can be silently re-pointed by its owner: a supply-chain risk that bites harder once a runner sits inside a plant network. Let Dependabot bump it.</div></div>
+          <div class="step"><div class="ix p">B</div><div class="tx"><b>Read, don't implement:</b> <span class="inlinecode">on: pull_request</span> vs <span class="inlinecode">on: pull_request_target</span>. The latter runs the base branch's workflow <b>with secrets</b> against the PR's code: a well-known privilege-escalation footgun. Search: <i>GitHub Security Lab, "preventing pwn requests"</i>.</div></div>
+          <div class="step"><div class="ix p">C</div><div class="tx"><b>Pin actions by SHA.</b> Swap one <span class="inlinecode">@v4</span> tag for its full commit SHA. A tag can be silently re-pointed by its owner — a supply-chain risk that bites harder once a self-hosted runner sits inside a plant network. Let Dependabot bump it.</div></div>
         </div>
       </div>
       <div>
@@ -592,26 +753,18 @@ git commit -am <span class="cmd2">"test: should be blocked"</span>
       - uses: actions/setup-python@v5
         with: {python-version: <span class="cmd2">"3.12"</span>}
       - run: pip install ign-lint==0.6.1
-      - run: ign-lint --config rule_config.json --files <span class="cmd2">"${{ matrix.view }}"</span>
-
-<span class="cm"># B: cancel superseded runs (workflow-level)</span>
-concurrency:
-  group: <span class="cmd2">"${{ github.workflow }}-${{ github.ref }}"</span>
-  cancel-in-progress: true
-
-<span class="cm"># C: pin an action by SHA, not a movable tag</span>
-      - uses: actions/checkout@<span class="cmd2">08c6903</span>  <span class="cm"># v4.x</span></pre></div>
-        <div class="goal" style="margin-top:16px">
-          <span class="badge">Why they help</span>
-          <p>Each is a real hardening habit in miniature: <b>named checks</b> that point at the broken view, <b>no wasted minutes</b> on stale runs, and a <b>tag that can't be re-pointed</b> under you.</p>
+      - run: ign-lint --config rule_config.json --files <span class="cmd2">"${{ matrix.view }}"</span></pre></div>
+        <div class="goal warn-g" style="margin-top:16px">
+          <span class="badge">Red flag</span>
+          <p>If <span class="inlinecode">pull_request_target</span> ever appears in your own workflows, you should be able to explain <b>exactly</b> why, and what you did to keep it safe.</p>
         </div>
       </div>
     </div>
   </div>
-  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>Stretch 2 of 2 · optional · pick any</span></div>
+  <div class="foot"><span>Mustry Academy · CI/CD for Ignition</span><span>Stretch 2 of 2 · optional</span></div>
 </section>
 
-<!-- 13 · DONE -->
+<!-- 18 · DONE -->
 <section class="slide dark">
   <div class="topbar">
     <div class="on-dark brandrow"><img class="logo-img" src="logos/OriginalLight.png" alt="Mustry Solutions"></div>
@@ -622,7 +775,7 @@ concurrency:
     <div class="title" style="color:#fff;max-width:24ch">The safety net is no longer a promise. It's a setting.</div>
     <ul class="checks" style="max-width:940px;margin-top:22px">
       <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span>You hunted <b>seven planted bugs</b> with five tools, and can now say which linter catches which class of bug, including the Ignition-specific ones.</span></li>
-      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span>Your repo runs a <b>two-job workflow</b> with least-privilege permissions, path filters and a badge, plus <b>branch protection on <span class="mono" style="color:#dbe4f0">main</span></b> that rejected your direct push and physically blocked a red PR.</span></li>
+      <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span>Your repo runs a <b>two-job workflow</b> with least-privilege permissions and path filters, plus <b>branch protection on <span class="mono" style="color:#dbe4f0">main</span></b> that rejected your direct push and physically blocked a red PR.</span></li>
       <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span><span>Bring to the wrap-up: <b>which linter would have caught your team's last real bug</b>, and one ign-lint rule you'd call overreach.</span></li>
     </ul>
     <div class="goal" style="background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.14);border-left-color:var(--peri2)">
@@ -646,6 +799,7 @@ const bar=document.getElementById('bar');
 const pager=document.getElementById('pager');
 const hint=document.getElementById('hint');
 function pad(n){return String(n).padStart(2,'0')}
+const POS_KEY='deckpos:'+location.pathname;
 function update(){
   const i=Math.round(deck.scrollTop/window.innerHeight);
   bar.style.width=((i)/(slides.length-1)*100)+'%';
@@ -653,7 +807,18 @@ function update(){
   const dark=slides[i]&&slides[i].classList.contains('dark');
   pager.classList.toggle('on-dark',dark);
   hint.classList.toggle('on-dark',dark);
+  try{localStorage.setItem(POS_KEY,String(i))}catch(e){}
 }
+// On a reload (Live Server save, or manual F5), jump back to the slide you were
+// on. A fresh open (new tab / typed URL) is nav type 'navigate' → starts at 1.
+(function restorePos(){
+  try{
+    const nav=performance.getEntriesByType('navigation')[0];
+    if(!nav||nav.type!=='reload')return;
+    const saved=parseInt(localStorage.getItem(POS_KEY)||'0',10);
+    if(saved>0)deck.scrollTop=saved*window.innerHeight;
+  }catch(e){}
+})();
 deck.addEventListener('scroll',()=>{requestAnimationFrame(update)});
 window.addEventListener('keydown',e=>{
   const i=Math.round(deck.scrollTop/window.innerHeight);

@@ -43,8 +43,9 @@ scripts/setup.sh        # boots one Ignition gateway, waits for RUNNING, prints 
 Install the linters:
 
 ```bash
-# macOS
-brew install shellcheck actionlint
+# macOS — Apple's bare `python3` is 3.9, but ign-lint needs 3.10+,
+# so install a modern Python (3.12) alongside the linters:
+brew install shellcheck actionlint python@3.12
 
 # Debian/Ubuntu/WSL — shellcheck via apt; actionlint has NO apt package,
 # so grab the release binary and put it on your PATH:
@@ -52,10 +53,19 @@ sudo apt install shellcheck python3-venv
 bash <(curl -sSL https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
 sudo mv actionlint /usr/local/bin/
 
-# both platforms — the venv keeps the pinned tools out of your system Python:
-python3 -m venv .venv && source .venv/bin/activate
-pip install yamllint==1.35.1 ign-lint==0.6.1     # ign-lint needs Python 3.10+
+# both platforms — venv on Python 3.10+ (macOS: python3.12 · Linux: python3),
+# which also keeps the pinned tools out of your system Python:
+python3.12 -m venv .venv && source .venv/bin/activate   # Linux: python3 (already 3.10+)
+pip install yamllint==1.35.1 ign-lint==0.6.1            # ign-lint needs Python 3.10+
 ```
+
+> **Build the venv with Python 3.10+.** `ign-lint` publishes wheels only for Python
+> `>=3.10,<3.14`, so a venv on an older interpreter fails at `pip install` with
+> `No matching distribution found for ign-lint` (pip filters it out by `requires-python`,
+> reporting `from versions: none`). macOS's system `python3` is **3.9**, which triggers
+> exactly this — name `python3.12` explicitly. On Debian/Ubuntu/WSL the system `python3`
+> is already 3.10+, so plain `python3` is fine. Confirm with `python -V` after activating.
+> CI runs the same pins on Python 3.12.
 
 > **Why the venv?** A bare `pip install` on Homebrew or Ubuntu 24.04+ Python fails with
 > `error: externally-managed-environment` (PEP 668); the venv sidesteps that and keeps
@@ -248,16 +258,28 @@ workflow  ──contains──▶  jobs  ──contains──▶  steps  ──r
 ```
 
 The repo ships the **finished** workflow — it's the answer key, and your fork has it too.
-Move it aside first, so you're building your own rather than admiring ours (you'll compare
-against it in step 5):
+Set it aside first, so you're building your own rather than admiring ours (you'll compare
+against it in step 4).
+
+The quickest path is `scripts/prepare-part2.sh` — it prints each action as it runs, does the
+`git mv`, and scaffolds a bare two-job skeleton (`validate` + `lint`, each just `checkout` plus
+TODO markers) into a fresh `.github/workflows/ci.yml`:
+
+```bash
+scripts/prepare-part2.sh
+git add -A && git commit -m "chore: set aside reference workflow, scaffold ci.yml skeleton"
+```
+
+Prefer to do it by hand? The script only runs the `git mv` and writes that skeleton file — so
+just do both yourself:
 
 ```bash
 git mv .github/workflows/ci.yml .github/ci-reference.yml
 git commit -m "chore: set aside the reference workflow"
 ```
 
-With `.github/workflows/` empty, live-create `ci.yml`, starting with the gateway-free
-validator:
+Either way, `.github/workflows/ci.yml` is now yours to build out — filling in the TODOs, not
+copying the reference. Start with the gateway-free validator job:
 
 ```yaml
 name: CI
@@ -275,7 +297,7 @@ jobs:
 ```
 
 Open a PR, watch it run, read the logs together — each step is its own collapsible block.
-Then add a second job that runs the Part 1 linters, including `ign-lint`:
+Then flesh out the `lint` job with the Part 1 linters, including `ign-lint`:
 
 ```yaml
   lint:
@@ -301,7 +323,7 @@ you go:
 - **`GITHUB_TOKEN`** — auto-provisioned per job, scoped to the repo, expires when the job ends.
 - **Secrets vs variables** — secrets are encrypted and masked (`***`) in logs; variables
   are plain text. Live-add an `EXAMPLE_SECRET` and confirm it's masked.
-- **Job ids are check names** — branch protection (You-do step 4) matches status checks
+- **Job ids are check names** — branch protection (You-do step 3) matches status checks
   by name, and a job's name *is* its id (`lint`, `validate`) unless you override it with
   `name:`. Rename a job later and any required check pointing at the old name waits forever.
 - **`timeout-minutes`** — a hung job otherwise runs (and bills) for up to 6 hours;
@@ -329,7 +351,7 @@ on:
 ```
 
 Open a PR that touches **only** `README.md` and confirm the workflow is **skipped** (not
-just passed). Hold that thought — it collides with required checks in step 4.
+just passed). Hold that thought — it collides with required checks in step 3.
 
 **2 — Compose validation.** Add a final step to the lint job:
 
@@ -340,17 +362,7 @@ just passed). Hold that thought — it collides with required checks in step 4.
 This catches Compose-level issues yamllint can't see — undefined services, port-string
 typos, malformed environment maps.
 
-**3 — Status badge.** Add a CI badge to the top of `README.md`:
-
-```markdown
-[![CI](https://github.com/<you>/<your-repo>/actions/workflows/ci.yml/badge.svg)](https://github.com/<you>/<your-repo>/actions/workflows/ci.yml)
-```
-
-(`<you>` is your GitHub username; `<your-repo>` is `cicd-lab-03-github-actions` — a fork
-keeps the source repo's name. A wrong repo name gives a silently broken badge, not an
-error.)
-
-**4 — Protect `main`.** In repo settings, add a branch protection rule for `main` with four
+**3 — Protect `main`.** In repo settings, add a branch protection rule for `main` with four
 things enabled — and grant yourself no bypass, or the rules won't apply to you as the
 repo admin:
 
@@ -390,14 +402,14 @@ Now prove the wall exists, from both sides:
 > Building it is a stretch goal below; for this lab repo it's also fine to just
 > understand *why* the PR hangs — this exact interaction bites real teams.
 
-**5 — Sanity check.** Commit any remaining changes. Your workflow should *structurally*
+**4 — Sanity check.** Commit any remaining changes. Your workflow should *structurally*
 match the reference you set aside at the start of this Part (`.github/ci-reference.yml`) —
 same triggers, jobs, and step order; step `name:` labels and comments may differ — see
 [`instructor-notes/lab-key.md`](../instructor-notes/lab-key.md) for the walkthrough.
 
 ### Stretch `[OPTIONAL]`
 
-- **Fix the docs-only-PR hang** with the no-op twin from the step 4 callout: a second
+- **Fix the docs-only-PR hang** with the no-op twin from the step 3 callout: a second
   workflow whose `paths-ignore:` mirrors the real filter list, with jobs named exactly
   `lint` and `validate` that just `echo` and exit 0 — the *job* names are what the
   required checks match on (the workflow's `name:` is cosmetic). Mind the caveat in
@@ -427,12 +439,12 @@ same triggers, jobs, and step order; step `name:` labels and comments may differ
 
 ---
 
-## Part 3 — Self-hosted runners (a look ahead)
+## Part 3 — Self-hosted runners (a look ahead + optional hands-on)
 
-The instructor closes with a short tour of self-hosted runners: what they are and when you'd
-reach for one. You'll get **hands-on** with them in Labs 04–05 — deploying to a real gateway
-usually means a runner that can reach it — so here we just establish the idea and the one rule
-that matters.
+The instructor frames self-hosted runners with the class: what they are, when you'd reach for
+one, and the one rule that matters. You'll get **hands-on for real** in Labs 04–05 — deploying
+to a real gateway usually means a runner that can reach it. An **optional** hands-on at the end
+of this Part lets you try the whole loop now, on your throwaway fork.
 
 **When GitHub-hosted is enough — most of the time.** Your code lints and validates on a
 standard image and you're not blocked by network or compliance. Use GitHub-hosted and move on.
@@ -446,39 +458,63 @@ at very high volume.)
 machine inside your network. *Never* attach one to a **public** repo that accepts **fork PRs**
 — a malicious PR can run code on your network. Use *ephemeral* runners and trusted repos.
 
-**Short demo (instructor).** Register an ephemeral Docker runner, route one job to it, watch
-it run locally:
+**Discussion (everyone).** Which of *your own* deploys would need a self-hosted runner — and
+why, specifically? ("Our gateway is behind the customer's VPN; GitHub-hosted physically can't
+reach it" beats "maybe.")
+
+### Optional hands-on — try the loop yourself `[OPTIONAL]`
+
+> **Go / no-go — read first.** This is safe *only* because the runner is **ephemeral**, the
+> demo workflow is **`workflow_dispatch`** (so no fork PR can trigger it), it runs on your
+> **throwaway fork**, and you **tear it down** at the end. Do **not** reproduce this on a repo
+> you care about — that is exactly the fork-PR footgun the rule above warns against.
+
+**1 — Register an ephemeral runner.** Mint a short-lived registration token (it uses your
+existing `gh` auth and expires on its own in ~1 hour), then start the runner container. Watch
+it appear in *Settings → Actions → Runners* and print `Listening for Jobs`:
 
 ```bash
 # short-lived registration token
 export RUNNER_TOKEN="$(gh api -X POST \
-  "repos/<user>/<repo>/actions/runners/registration-token" --jq .token)"
+  "repos/<you>/<repo>/actions/runners/registration-token" --jq .token)"
 
 docker run -d --rm --name lab03-runner \
-  -e REPO_URL="https://github.com/<user>/<repo>" \
+  -e REPO_URL="https://github.com/<you>/<repo>" \
   -e RUNNER_TOKEN="$RUNNER_TOKEN" \
   -e LABELS="self-hosted,local-lab03" \
   -e EPHEMERAL=true \
-  -v /var/run/docker.sock:/var/run/docker.sock \
   myoung34/github-runner:latest
 
 docker logs -f lab03-runner          # watch for "Listening for Jobs"
 ```
 
-A one-step workflow with `runs-on: [self-hosted, local-lab03]`, triggered via `gh workflow
-run`, then executes live in `docker logs`. Note the runner only has what you put on it (no
-preinstalled `shellcheck`, for instance). The full how-to — registering, routing, and cleaning
-up — is in [`docs/self-hosted-runners.md`](../docs/self-hosted-runners.md), and you'll do it
+**2 — Dispatch the shipped workflow.** The repo already ships
+[`.github/workflows/self-hosted-demo.yml`](../.github/workflows/self-hosted-demo.yml) —
+manual-only (`workflow_dispatch`), with `runs-on: [self-hosted, local-lab03]`, so there is
+nothing to write. Fire it, then flip to the runner's logs:
+
+```bash
+gh workflow run self-hosted-demo.yml   # then watch the docker logs terminal
+```
+
+The steps run live in `docker logs`, on your machine, not GitHub's infra. The `shellcheck`
+step **fails — command not found**: a bare runner only has what *you* put on it, and "works on
+`ubuntu-latest`" was an assumption GitHub's image quietly satisfied. That failure *is* the
+lesson. After the one job, the ephemeral container exits and the runner drops off the Runners
+tab.
+
+**3 — Tear it down (mandatory if you ran it).** Cleanup *is* the exercise — a lingering runner
+on a public repo is the standing version of the fork-PR risk. The workflow itself is
+`workflow_dispatch`-only and harmless, so leave it; the **runner** is what you remove:
+
+```bash
+docker rm -f lab03-runner   # no-op if the ephemeral runner already exited
+```
+
+Then on github.com: confirm *Settings → Actions → Runners* is empty, and revoke any classic
+**PAT** you minted (the `gh api` registration tokens above expire on their own). The full
+how-to is in [`docs/self-hosted-runners.md`](../docs/self-hosted-runners.md), and you'll do it
 for real in Lab 04.
-
-**If you try it yourself later:** cleanup is part of the exercise. Revert `runs-on:` to
-`ubuntu-latest`, stop the runner, confirm it's gone from *Settings → Actions → Runners*,
-and revoke any token you minted along the way (the `gh api` registration tokens above are
-short-lived and expire on their own).
-
-**Discussion.** Which of *your own* deploys would need a self-hosted runner — and why,
-specifically? ("Our gateway is behind the customer's VPN; GitHub-hosted physically can't reach
-it" beats "maybe.")
 
 ---
 
@@ -489,7 +525,7 @@ You built a CI safety net for an Ignition project, end to end:
 - **Local linters** — yamllint, shellcheck, actionlint, **ign-lint**, and `scripts/validate.sh`
   — each catching a class of bug before it ships.
 - **A GitHub Actions workflow** that runs them on every PR, with least-privilege permissions,
-  path filters, and a status badge.
+  path filters.
 - **A required check** that turns "please run the linters" into "you cannot merge until they pass."
 - **An understanding of self-hosted runners** — when they're worth it, and the security
   weight they carry.
