@@ -702,7 +702,7 @@ docker rm -f lab03-runner   <span class="cm"># no-op if it already exited</span>
       <div class="steps">
         <div class="step"><div class="ix t">1</div><div class="tx">Install and enable the hook: <span class="inlinecode">pip install pre-commit</span> → <span class="inlinecode">pre-commit install</span>.</div></div>
         <div class="step"><div class="ix t">2</div><div class="tx">Baseline run over everything: <span class="inlinecode">pre-commit run --all-files</span>, which should be clean after Part 1.</div></div>
-        <div class="step"><div class="ix t">3</div><div class="tx"><b>Prove it works:</b> make a bad change (set a binding to <span class="inlinecode">now(250)</span>), try to commit, and <b>ign-lint blocks the commit</b>.</div></div>
+        <div class="step"><div class="ix t">3</div><div class="tx"><b>Prove it works:</b> make a bad change (for example break one of the shell scripts), try to commit, and <b>ign-lint blocks the commit</b>.</div></div>
         <div class="step"><div class="ix t">4</div><div class="tx">Undo the bad change. If the commit went through anyway: did <span class="inlinecode">pre-commit install</span> run? Is <span class="inlinecode">.git/hooks/pre-commit</span> populated?</div></div>
       </div>
       <div>
