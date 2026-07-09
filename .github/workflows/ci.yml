@@ -1,0 +1,38 @@
+name: CI
+
+# TODO (step 1): refine this trigger — add a `paths:` filter so docs-only PRs are
+# skipped, plus a `push: branches: [main]` backstop. See the assignment.
+on:
+  pull_request:
+    paths:
+      - "projects/**"
+      - "scripts/**"
+      - "docker-compose.yml"
+      - ".github/workflows/**"
+      - ".yamllint.yml"
+      - "rule_config.json"
+  push:
+    branches: [main]
+
+# Least-privilege default; individual jobs override if they need more.
+permissions:
+  contents: read
+
+jobs:
+  # Job ids become the status-check names branch protection matches on —
+  # keep `validate` and `lint` stable (renaming them orphans the required checks).
+
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # TODO: run scripts/validate.sh
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # TODO (step 0): set up Python 3.12, then install the pinned tools
+      #                (pip install yamllint==1.35.1 ign-lint==0.6.1)
+      # TODO: run each linter — yamllint, actionlint, shellcheck, ign-lint
+      # TODO (step 2): add `docker compose config -q` as the final lint step
