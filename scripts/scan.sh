@@ -50,7 +50,7 @@ scan() {
     -H "X-Ignition-API-Token: $KEY" \
     -H "Accept: application/json" \
     --max-time 30 \
-    "$URL/data/api/v1/scan/$1" || echo 000
+    $URL/data/api/v1/scan/$1 || echo 000
 }
 
 failed=0
