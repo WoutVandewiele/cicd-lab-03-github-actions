@@ -397,7 +397,7 @@
                     "binding": {
                       "type": "expr",
                       "config": {
-                        "expression": "dateFormat(now(1000), 'EEE HH:mm:ss')"
+                        "expression": "dateFormat(now(250), 'EEE HH:mm:ss')"
                       }
                     }
                   }
@@ -541,7 +541,7 @@
                     "binding": {
                       "type": "expr",
                       "config": {
-                        "expression": "runScript('lab.display.format_reading', 0, 162.0, '°C')"
+                        "expression": "{../../BagsPerMin.Value.props.text}"
                       }
                     }
                   }
@@ -643,7 +643,7 @@
           {
             "type": "ia.container.flex",
             "meta": {
-              "name": "Power"
+              "name": "power_tile"
             },
             "position": {
               "basis": "0",
